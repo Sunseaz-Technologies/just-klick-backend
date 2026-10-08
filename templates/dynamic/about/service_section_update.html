@@ -1,0 +1,322 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Update Popular Services Section{% endblock %}
+{% block title_header %}Update Popular Services Section{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        --accent-color: #2563eb;
+        --card-border-radius: 16px;
+        --hover-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .form-header-gradient {
+        background: var(--primary-gradient);
+        color: #ffffff;
+        border-radius: var(--card-border-radius);
+        padding: 24px;
+        box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.25);
+        margin-bottom: 25px;
+    }
+
+    .form-group-card {
+        border: none;
+        border-radius: var(--card-border-radius);
+        background: #ffffff;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(241, 245, 249, 0.9);
+        margin-bottom: 25px;
+        transition: var(--hover-transition);
+    }
+
+    .form-group-card:hover {
+        box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.06);
+    }
+
+    .form-group-card .card-header {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 16px 24px;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group-card .card-header i {
+        color: var(--accent-color);
+        font-size: 1.25rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        padding: 11px 16px;
+        font-size: 0.95rem;
+        transition: var(--hover-transition);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.88rem;
+        margin-bottom: 8px;
+    }
+
+    .nested-card-box {
+        background-color: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px dashed #cbd5e1;
+        margin-bottom: 20px;
+    }
+
+    .badge-pill-success {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #059669;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 50px;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-pill-danger {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 50px;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-submit-premium {
+        background: var(--primary-gradient);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 28px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        transition: var(--hover-transition);
+    }
+
+    .btn-submit-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        color: #ffffff;
+    }
+
+    .action-btn-small {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: var(--hover-transition);
+    }
+
+    .btn-save-card {
+        background-color: #2563eb;
+        color: #ffffff;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 10px 20px;
+        border: none;
+        transition: var(--hover-transition);
+    }
+
+    .btn-save-card:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0 mb-5">
+
+    <!-- Header Banner -->
+    <div class="form-header-gradient">
+        <h3 class="fw-bold mb-1">Update Popular Services Section</h3>
+        <p class="mb-0 text-white-50">Edit this popular service block details and configure individual service listings shown in the categories shortcut panel.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Edit Section Info -->
+        <div class="col-12 col-lg-7">
+            <form method="POST" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="card form-group-card">
+                    <div class="card-header">
+                        <i class="bi bi-pencil-square"></i>
+                        Section Settings
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Section Title Tag</label>
+                                <input type="text" name="section_title" class="form-control" value="{{ section.section_title }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Main Heading Title</label>
+                                <input type="text" name="title" class="form-control" value="{{ section.title }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description Tagline</label>
+                                <textarea name="description" class="form-control" rows="4" required>{{ section.description }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card form-group-card">
+                    <div class="card-body py-3">
+                        <div class="form-check form-switch d-flex align-items-center gap-3">
+                            <input type="checkbox" id="id_is_active" name="is_active" class="form-check-input" {% if section.is_active %}checked{% endif %} style="width: 2.8rem; height: 1.4rem; cursor: pointer;">
+                            <label class="form-check-label fw-bold text-dark" for="id_is_active" style="cursor: pointer;">
+                                Keep this Popular Services section active on homepage
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{% url 'dynamic:who_we_are_create' %}" class="btn btn-light btn-cancel-premium text-muted">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-submit-premium">
+                        <i class="bi bi-save2-fill me-2"></i>Update Section Info
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column: Add / Edit Service Items -->
+        <div class="col-12 col-lg-5">
+            <!-- Save Item Inline Panel -->
+            <div class="card form-group-card">
+                <div class="card-header">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    {% if item_to_edit %}Edit Service Item: {{ item_to_edit.name }}{% else %}Add Popular Service Item{% endif %}
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'dynamic:service_item_save' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="section_id" value="{{ section.id }}">
+                        {% if item_to_edit %}
+                            <input type="hidden" name="item_id" value="{{ item_to_edit.id }}">
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Service Item Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Overseas, Hostels, Colleges" required value="{{ item_to_edit.name|default:'' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Frontend Target Link (Optional)</label>
+                            <input type="text" name="link" class="form-control" placeholder="e.g. /categories/overseas/" value="{{ item_to_edit.link|default:'' }}">
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label">Display Order</label>
+                                <input type="number" name="display_order" class="form-control" min="0" required value="{{ item_to_edit.display_order|default:0 }}">
+                            </div>
+                            <div class="col-6 d-flex align-items-end">
+                                <div class="form-check form-switch mb-2">
+                                    <input type="checkbox" id="id_item_active" name="is_active" class="form-check-input" {% if item_to_edit.is_active or not item_to_edit %}checked{% endif %}>
+                                    <label class="form-check-label fw-semibold" for="id_item_active">Active Item</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            {% if item_to_edit %}
+                                <a href="{% url 'dynamic:service_section_edit' section.id %}" class="btn btn-light btn-sm text-muted">Cancel Edit</a>
+                            {% endif %}
+                            <button type="submit" class="btn btn-save-card {% if not item_to_edit %}w-100{% endif %}">
+                                <i class="bi bi-check-lg me-1"></i>{% if item_to_edit %}Save Changes{% else %}Add Item{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- List of Items in this Section -->
+            <div class="card form-group-card">
+                <div class="card-header">
+                    <i class="bi bi-tag-fill"></i>
+                    Configured Service Items
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th style="width: 80px;">Order</th>
+                                <th style="width: 100px;">Status</th>
+                                <th style="width: 100px; text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr {% if item_to_edit.id == item.id %}class="table-warning"{% endif %}>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ item.name }}</div>
+                                    {% if item.link %}
+                                        <code class="text-muted small">{{ item.link }}</code>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary rounded">{{ item.display_order }}</span>
+                                </td>
+                                <td>
+                                    {% if item.is_active %}
+                                        <span class="badge-pill-success py-1 px-2">Active</span>
+                                    {% else %}
+                                        <span class="badge-pill-danger py-1 px-2">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: right;">
+                                    <div class="d-inline-flex gap-2">
+                                        <a href="{% url 'dynamic:service_section_edit' section.id %}?edit_item={{ item.id }}" class="action-btn-small btn-edit-premium" style="background-color: rgba(37,99,235,0.08); color: #2563eb;" title="Edit Item">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+                                        <form method="POST" action="{% url 'dynamic:service_item_delete' item.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" onclick="return confirm('Are you sure you want to remove {{ item.name }}?')" class="action-btn-small btn-delete-premium" style="background-color: rgba(239,68,68,0.08); color: #ef4444;" title="Delete Item">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    No service items added yet. Use the form above to add items like "Overseas", "Colleges", etc.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

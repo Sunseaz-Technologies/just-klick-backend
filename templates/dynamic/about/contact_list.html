@@ -1,0 +1,163 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Contact Pages{% endblock %}
+{% block title_header %}Contact Pages{% endblock %}
+
+{% block content %}
+<style>
+    .about-card {
+        border: none;
+        border-radius: 18px;
+    }
+    .custom-badge {
+        padding: 8px 14px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .table thead th {
+        font-size: 13px;
+        font-weight: 700;
+        color: #495057;
+        text-transform: uppercase;
+    }
+    .feature-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        margin: 2px;
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    .field-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        margin: 2px;
+        background: #f8fafc;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+</style>
+
+<div class="container-fluid">
+
+    <!-- Header Card -->
+    <div class="card about-card shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="fw-bold mb-1">Contact Pages Block</h4>
+                    <p class="text-muted mb-0">Manage contact page information, features and form fields</p>
+                </div>
+                <a href="{% url 'dynamic:contact_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i> Create Contact Page
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card about-card shadow-sm">
+        <div class="card-header bg-white border-0 py-3 px-4">
+            <h5 class="fw-bold mb-0" style="color:#b01f2c;">All Contact Page Configurations</h5>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="color:#243d7f;">S.No</th>
+                        <th style="color:#243d7f;">Title</th>
+                        <th style="color:#243d7f;">Contact Features</th>
+                        <th style="color:#243d7f;">Form Fields</th>
+                        <th style="color:#243d7f;">Status</th>
+                        <th style="color:#243d7f;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contact in contacts %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+
+                        <td>
+                            <div class="fw-bold text-dark">{{ contact.title }}</div>
+                        </td>
+
+                        <td>
+                            {% for feature in contact.features.all %}
+                                <span class="feature-badge">
+                                    <i class="{{ feature.icon }} me-1"></i>{{ feature.title }}
+                                </span>
+                            {% empty %}
+                                <span class="text-muted small">No Features</span>
+                            {% endfor %}
+                        </td>
+
+                        <td>
+                            {% for field in contact.form_fields.all %}
+                                <span class="field-badge">{{ field.label }}</span>
+                            {% empty %}
+                                <span class="text-muted small">No Fields</span>
+                            {% endfor %}
+                        </td>
+
+                        <td>
+                            {% if contact.is_active %}
+                                <span class="badge bg-success custom-badge">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger custom-badge">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'dynamic:contact_update' contact.id %}"
+                                   class="btn btn-outline-success btn-sm action-btn"
+                                   title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="POST" action="{% url 'dynamic:contact_delete' contact.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            onclick="return confirm('Delete this contact page?')"
+                                            class="btn btn-outline-danger btn-sm action-btn"
+                                            title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-person-lines-fill fs-1 text-muted d-block mb-3"></i>
+                            <p class="text-muted mb-3">No Contact Pages found. Click Create to begin.</p>
+                            <a href="{% url 'dynamic:contact_create' %}"
+                               class="btn btn-primary px-4"
+                               style="border-radius:10px; font-weight:600;">
+                                <i class="bi bi-plus-lg me-2"></i>Create Contact Page
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

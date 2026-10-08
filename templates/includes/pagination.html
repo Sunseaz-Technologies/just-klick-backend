@@ -1,0 +1,79 @@
+{% if page_obj.has_other_pages %}
+<div class="d-flex justify-content-center mt-4">
+
+    <nav>
+        <ul class="pagination pagination-modern mb-0">
+
+            <!-- Previous -->
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            <!-- First Page -->
+            <li class="page-item {% if page_obj.number == 1 %}active{% endif %}">
+                <a class="page-link" href="?page=1">1</a>
+            </li>
+
+            <!-- Left Dots -->
+            {% if page_obj.number > 4 %}
+            <li class="page-item disabled">
+                <span class="page-link border-0 bg-transparent">...</span>
+            </li>
+            {% endif %}
+
+            <!-- Middle Pages -->
+            {% for num in page_obj.paginator.page_range %}
+
+                {% if num > 1 and num < page_obj.paginator.num_pages %}
+
+                    {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
+
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">
+                                {{ num }}
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+                {% endif %}
+
+            {% endfor %}
+
+            <!-- Right Dots -->
+            {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+            <li class="page-item disabled">
+                <span class="page-link border-0 bg-transparent">...</span>
+            </li>
+            {% endif %}
+
+            <!-- Last Page -->
+            {% if page_obj.paginator.num_pages > 1 %}
+            <li class="page-item {% if page_obj.number == page_obj.paginator.num_pages %}active{% endif %}">
+                <a class="page-link"
+                   href="?page={{ page_obj.paginator.num_pages }}">
+                    {{ page_obj.paginator.num_pages }}
+                </a>
+            </li>
+            {% endif %}
+
+            <!-- Next -->
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+
+</div>
+{% endif %}

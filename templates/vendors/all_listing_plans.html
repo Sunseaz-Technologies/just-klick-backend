@@ -1,0 +1,98 @@
+{% extends "vendors/vendor_dashboard.html" %}
+{% block title %}Manage Listing Plans{% endblock %}
+{% block title_header %}Manage Listing Plans{% endblock %}
+
+{% block content %}
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="mb-1 fw-bold" style="color: #b01f2c;">
+                Contact Visibility Plans
+            </h5>
+            <p class="text-muted small mb-0">
+                Purchase plans to show phone number and WhatsApp contact options on your business listings.
+            </p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th style="color: #243d7f;">S.No</th>
+                    <th style="color: #243d7f;">Business Name</th>
+                    <th style="color: #243d7f;">Category</th>
+                    <th style="color: #243d7f;">Status</th>
+                    <th style="color: #243d7f;">Active Plan</th>
+                    <th style="color: #243d7f;">Expiry Date</th>
+                    <th style="color: #243d7f; text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in businesses_with_plans %}
+                <tr>
+                    <td class="text-muted">{{ forloop.counter }}</td>
+                    <td class="fw-medium">
+                        <a href="{% url 'vendors:view_business' item.business.pk %}" class="text-decoration-none fw-semibold">
+                            {{ item.business.company_name }}
+                        </a>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">
+                            {{ item.business.category.name|default:"—" }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if item.business.status == 'verified' %}
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10">Verified</span>
+                        {% elif item.business.status == 'rejected' %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10">Rejected</span>
+                        {% else %}
+                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-10">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.active_subscription %}
+                            <span class="badge bg-success px-3 py-1 fw-semibold">
+                                <i class="bi bi-patch-check-fill me-1"></i>{{ item.active_subscription.plan.name }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-3 py-1">
+                                No Active Plan
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.active_subscription %}
+                            <span class="fw-medium text-success small">
+                                {{ item.active_subscription.end_date|date:"d M Y" }}
+                            </span>
+                        {% else %}
+                            <span class="text-muted small">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="{% url 'vendors:listing_plans' item.business.pk %}" 
+                           class="btn btn-sm {% if item.active_subscription %}btn-outline-primary{% else %}btn-primary{% endif %} px-3">
+                            <i class="bi bi-phone me-1"></i>{% if item.active_subscription %}Manage Plan{% else %}Purchase Plan{% endif %}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="bi bi-phone fs-2 d-block mb-2"></i>
+                        No businesses registered yet. You need to register a business first.
+                        <div class="mt-3">
+                            <a href="{% url 'vendors:add_business' %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-lg me-1"></i>Add Business
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

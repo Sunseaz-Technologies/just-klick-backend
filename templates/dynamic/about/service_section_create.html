@@ -1,0 +1,155 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Create Popular Services Section{% endblock %}
+{% block title_header %}Create Popular Services Section{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        --card-border-radius: 16px;
+        --hover-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .form-header-gradient {
+        background: var(--primary-gradient);
+        color: #ffffff;
+        border-radius: var(--card-border-radius);
+        padding: 24px;
+        box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.25);
+        margin-bottom: 25px;
+    }
+
+    .form-group-card {
+        border: none;
+        border-radius: var(--card-border-radius);
+        background: #ffffff;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(241, 245, 249, 0.9);
+        margin-bottom: 25px;
+    }
+
+    .form-group-card .card-header {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 16px 24px;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group-card .card-header i {
+        color: #2563eb;
+        font-size: 1.25rem;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        padding: 11px 16px;
+        transition: var(--hover-transition);
+    }
+
+    .form-control:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 8px;
+    }
+
+    .btn-submit-premium {
+        background: var(--primary-gradient);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 28px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        transition: var(--hover-transition);
+    }
+
+    .btn-submit-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        color: #ffffff;
+    }
+
+    .btn-cancel-premium {
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: var(--hover-transition);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0 mb-5">
+
+    <!-- Header Banner -->
+    <div class="form-header-gradient">
+        <h3 class="fw-bold mb-1">Create Popular Services Section</h3>
+        <p class="mb-0 text-white-50">Setup a new container section for landing page quick-access services. You can configure and add service items right after saving.</p>
+    </div>
+
+    <!-- Create Form -->
+    <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <div class="card form-group-card">
+            <div class="card-header">
+                <i class="bi bi-info-circle-fill"></i>
+                Section Information
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_section_title">Section Title Tag</label>
+                        <input type="text" id="id_section_title" name="section_title" class="form-control" placeholder="e.g. Popular services on JustKlick" required value="Popular services on JustKlick">
+                        <small class="form-text text-muted">Brief visual label displayed directly above the main title heading.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_title">Main Title Heading</label>
+                        <input type="text" id="id_title" name="title" class="form-control" placeholder="e.g. Explore trusted categories students search most." required>
+                        <small class="form-text text-muted">The primary heading text for this block.</small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="id_description">Section Description</label>
+                        <textarea id="id_description" name="description" class="form-control" rows="4" placeholder="Brief tagline or description..." required></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Status -->
+        <div class="card form-group-card">
+            <div class="card-body py-3">
+                <div class="form-check form-switch d-flex align-items-center gap-3">
+                    <input type="checkbox" id="id_is_active" name="is_active" class="form-check-input" checked style="width: 2.8rem; height: 1.4rem; cursor: pointer;">
+                    <label class="form-check-label fw-bold text-dark" for="id_is_active" style="cursor: pointer;">
+                        Make this Popular Services section active on frontend immediately
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-end align-items-center gap-3 mt-4">
+            <a href="{% url 'dynamic:who_we_are_create' %}" class="btn btn-light btn-cancel-premium text-muted">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-submit-premium">
+                <i class="bi bi-save2-fill me-2"></i>Save & Proceed
+            </button>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

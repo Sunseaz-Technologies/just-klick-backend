@@ -1,0 +1,146 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <h4 class="mb-0" style="color: #b01f2c;">
+                <i class="bi bi-question-circle-fill me-2"></i>
+                FAQ Management
+            </h4>
+
+            <a href="{% url 'dynamic:faq_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>
+                Add FAQ
+            </a>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th style="color: #243d7f;">S.NO</th>
+                            <th style="color: #243d7f;">Question</th>
+                            <th style="color: #243d7f;">Answer</th>
+                            <th style="color: #243d7f;">Status</th>
+                            <th style="color: #243d7f;">Created</th>
+                            <th style="color: #243d7f;">Updated</th>
+                            <th style="color: #243d7f;" width="180">Actions</th>
+                        </tr>
+
+                    </thead>
+                    <tbody>
+
+                        {% for item in items %}
+
+                        <tr>
+
+                          <td>{{ forloop.counter }}</td>
+
+                            <td>
+                                <strong>
+                                    {{ item.question }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ item.answer|truncatechars:100 }}
+                            </td>
+
+                            <td>
+
+                                {% if item.is_active %}
+
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge bg-danger">
+                                    Inactive
+                                </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ item.created_at|date:"d M Y" }}
+                            </td>
+
+                            <td>
+                                {{ item.updated_at|date:"d M Y" }}
+                            </td>
+
+                            <td>
+
+                                <a href="{% url 'dynamic:faq_update' item.id %}"
+                                   class="btn btn-warning btn-sm">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <form method="POST"
+                                      action="{% url 'dynamic:faq_delete' item.id %}"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete this FAQ?')">
+
+                                    {% csrf_token %}
+
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm">
+
+                                        <i class="bi bi-trash"></i>
+
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td colspan="7" class="text-center py-5">
+
+                                <div class="text-muted">
+
+                                    <i class="bi bi-question-circle fs-1 d-block mb-2"></i>
+
+                                    No FAQs found.
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+    {% include "includes/pagination.html" %}
+
+</div>
+
+{% endblock %}

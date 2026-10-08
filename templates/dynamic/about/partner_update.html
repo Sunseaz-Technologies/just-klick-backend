@@ -1,0 +1,120 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Edit Partner Section{% endblock %}
+{% block title_header %}Partner Section Workbench{% endblock %}
+
+{% block content %}
+<style>
+.about-card {
+    border: none;
+    border-radius: 18px;
+}
+
+.logo-display-wrapper {
+    width: 120px;
+    height: 75px;
+    background: #ffffff;
+    border: 2px solid #eaecf4;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    margin: 6px;
+    box-shadow: 0 0.15rem 0.35rem 0 rgba(58, 59, 69, 0.05);
+    position: relative;
+}
+
+.logo-display-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+</style>
+
+<div class="container-fluid" style="max-width: 1000px; margin: 0 auto;">
+
+    <div class="card about-card shadow-sm mb-4">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-1">Partner Section Workbench</h4>
+                <p class="text-muted mb-0">Currently modifying: <strong class="text-danger">{{ section.title }}</strong></p>
+            </div>
+            <a href="{% url 'dynamic:partner_list' %}" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+                ← Return to Index Grid
+            </a>
+        </div>
+    </div>
+
+    <div class="card about-card shadow-sm bg-white">
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold text-muted small">Section Tag Subheading</label>
+                        <input type="text" name="section_name" class="form-control form-control-lg fs-6" value="{{ section.section_name }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold text-muted small">Main Display Title</label>
+                        <input type="text" name="title" class="form-control form-control-lg fs-6" value="{{ section.title }}" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-muted small">Description context</label>
+                    <textarea name="description" class="form-control" rows="3" required>{{ section.description }}</textarea>
+                </div>
+
+                <div class="mb-4 p-4 bg-light rounded-3 border">
+                    <label class="form-label d-block fw-semibold text-primary mb-1">
+                        <i class="bi bi-images me-2"></i>Currently Loaded Branding Logos ({{ section.images.all|length }})
+                    </label>
+                    <div class="form-text text-muted mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span>
+                            <i class="bi bi-info-circle me-1"></i> Check the box on any logo card to mark it for deletion.
+                        </span>
+                        <button type="submit" name="action" value="bulk_delete" class="btn btn-outline-danger btn-sm px-3 rounded-pill shadow-sm" onclick="return confirm('Delete all selected logos permanently?')">
+                            <i class="bi bi-trash me-1"></i> Delete Selected
+                        </button>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-start align-items-center">
+                        {% for img_obj in section.images.all %}
+                            <div class="logo-display-wrapper position-relative" title="Registered Brand Asset">
+                                <img src="{{ img_obj.image.url }}" alt="Logo Object Profile">
+                                <div class="position-absolute" style="top: 6px; left: 6px; z-index: 10;">
+                                    <input type="checkbox" name="delete_images" value="{{ img_obj.id }}" class="form-check-input border-danger" style="cursor: pointer; width: 18px; height: 18px;" title="Mark for deletion">
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="p-3 text-center text-muted w-100">
+                                <i class="bi bi-exclamation-triangle me-1"></i> No image references found inside this database block segment.
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-success">
+                        <i class="bi bi-plus-circle-fill me-1"></i> Append Additional Brand Logos
+                    </label>
+                    <input type="file" name="partner_images" class="form-control form-control-lg fs-6" multiple accept="image/*">
+                    <div class="form-text text-muted">
+                        Leave this file input empty if you want to keep your current images exactly as they are without adding new ones.
+                    </div>
+                </div>
+
+                <div class="form-check form-switch mb-4">
+                    <input class="form-check-input" type="checkbox" name="is_active" id="scActive" {% if section.is_active %}checked{% endif %}>
+                    <label class="form-check-label fw-semibold text-muted small" for="scActive">Publish Operational Status</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm">
+                    Apply Operational Updates & Sync Data
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

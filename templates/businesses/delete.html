@@ -1,0 +1,45 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Delete Business{% endblock %}
+{% block title_header %}Delete Business{% endblock %}
+
+{% block content %}
+<div class="table-card" style="max-width: 500px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="mb-0 fw-bold">Delete Business</h5>
+        <a href="{% url 'businesses:list' %}" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    <div class="alert alert-danger border-0">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        Are you sure you want to delete <strong>{{ business.company_name }}</strong>? This action cannot be undone.
+    </div>
+
+    <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded-3">
+        {% if business.image %}
+            <img src="{{ business.image.url }}" alt="{{ business.company_name }}"
+                 style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
+        {% else %}
+            <div style="width:48px;height:48px;border-radius:8px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;color:#94a3b8;">
+                <i class="bi bi-building fs-5"></i>
+            </div>
+        {% endif %}
+        <div>
+            <div class="fw-medium">{{ business.company_name }}</div>
+            <div class="small text-muted">{{ business.category.name|default:"—" }} · {{ business.location }}</div>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash me-1"></i> Yes, Delete
+            </button>
+            <a href="{% url 'businesses:list' %}" class="btn btn-light">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

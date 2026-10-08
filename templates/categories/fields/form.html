@@ -1,0 +1,186 @@
+{% extends "dashboard.html" %}
+
+{% block title %}{% if field %}Edit Field{% else %}Add Field{% endif %}{% endblock %}
+{% block title_header %}{% if field %}Edit Field{% else %}Add Field{% endif %}{% endblock %}
+
+{% block content %}
+<div class="table-card" style="max-width: 640px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="mb-0 fw-bold">{% if field %}Edit: {{ field.label }}{% else %}New Field{% endif %}</h5>
+            <small class="text-muted">Category: {{ category.name }}</small>
+        </div>
+        <a href="{% url 'categories:fields' category.slug %}" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        Please fix the errors below.
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Label -->
+        <div class="mb-3">
+            <label class="form-label fw-medium">Label <span class="text-danger">*</span></label>
+            <input type="text" name="label" value="{{ form.label.value|default:'' }}"
+                class="form-control {% if form.label.errors %}is-invalid{% endif %}"
+                placeholder="e.g. Hostel Type, Amenities, Budget" required>
+            {% for error in form.label.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Field Type -->
+        <div class="mb-3">
+            <label class="form-label fw-medium">Field Type <span class="text-danger">*</span></label>
+            <select name="field_type" id="field_type"
+                class="form-select {% if form.field_type.errors %}is-invalid{% endif %}">
+                {% for value, label in form.fields.field_type.choices %}
+                <option value="{{ value }}" {% if form.field_type.value == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+            {% for error in form.field_type.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Options (show only for checkbox, radio, select) -->
+        <div class="mb-3" id="options_section" style="display:none;">
+            <label class="form-label fw-medium">Options</label>
+            <div id="options_list"></div>
+            <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addOption()">
+                <i class="bi bi-plus me-1"></i> Add Option
+            </button>
+            <input type="hidden" name="options" id="options_input">
+            <small class="text-muted d-block mt-1">Add each option individually e.g. Boys PG, Girls PG</small>
+        </div>
+
+        <!-- Placeholder -->
+        <div class="mb-3" id="placeholder_section" style="display:none;">
+            <label class="form-label fw-medium">Placeholder</label>
+            <input type="text" name="placeholder" value="{{ form.placeholder.value|default:'' }}"
+                class="form-control" placeholder="e.g. Enter price range">
+        </div>
+
+        <!-- Show as Filter -->
+        <div class="mb-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="show_as_filter" id="show_as_filter"
+                    {% if form.show_as_filter.value %}checked{% endif %}>
+                <label class="form-check-label fw-medium" for="show_as_filter">Show as Filter on Listing Page</label>
+            </div>
+            <small class="text-muted">Enable this to show field as a filter option on the business listing page.</small>
+        </div>
+
+        <!-- Order -->
+        <div class="mb-3">
+            <label class="form-label fw-medium">Order</label>
+            <input type="number" name="order" value="{{ form.order.value|default:'0' }}"
+                class="form-control {% if form.order.errors %}is-invalid{% endif %}" placeholder="0">
+            <small class="text-muted">Lower number appears first.</small>
+            {% for error in form.order.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Is Required -->
+        <div class="mb-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="is_required" id="is_required"
+                    {% if form.is_required.value %}checked{% endif %}>
+                <label class="form-check-label fw-medium" for="is_required">Required field</label>
+            </div>
+        </div>
+
+        <!-- Is Active -->
+        <div class="mb-4">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="is_active" id="is_active"
+                    {% if form.is_active.value != False %}checked{% endif %}>
+                <label class="form-check-label fw-medium" for="is_active">Active</label>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i>
+                {% if field %}Update{% else %}Add{% endif %} Field
+            </button>
+            <a href="{% url 'categories:fields' category.slug %}" class="btn btn-light">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    let options = [];
+    {% if field and field.options %}
+        options = {{ field.options|safe }};
+        if (!Array.isArray(options)) options = [];
+    {% endif %}
+
+    const fieldTypeSelect = document.getElementById('field_type');
+    const optionsSection = document.getElementById('options_section');
+    const placeholderSection = document.getElementById('placeholder_section');
+    const optionsList = document.getElementById('options_list');
+    const optionsInput = document.getElementById('options_input');
+
+    const optionTypes = ['checkbox', 'radio', 'select'];
+    const textTypes = ['text', 'number', 'textarea'];
+
+    function renderOptions() {
+        optionsList.innerHTML = '';
+        options.forEach((opt, index) => {
+            optionsList.innerHTML += `
+                <div class="d-flex gap-2 mb-2" id="option_row_${index}">
+                    <input type="text" class="form-control form-control-sm" value="${opt}"
+                        onchange="updateOption(${index}, this.value)" placeholder="Option value">
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOption(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>`;
+        });
+        optionsInput.value = JSON.stringify(options);
+    }
+
+    function addOption() {
+        options.push('');
+        renderOptions();
+    }
+
+    function updateOption(index, value) {
+        options[index] = value;
+        optionsInput.value = JSON.stringify(options);
+    }
+
+    function removeOption(index) {
+        options.splice(index, 1);
+        renderOptions();
+    }
+
+    function toggleSections() {
+        const selected = fieldTypeSelect.value;
+        if (optionTypes.includes(selected)) {
+            optionsSection.style.display = 'block';
+            placeholderSection.style.display = 'none';
+            renderOptions();
+        } else if (textTypes.includes(selected)) {
+            optionsSection.style.display = 'none';
+            placeholderSection.style.display = 'block';
+        } else {
+            optionsSection.style.display = 'none';
+            placeholderSection.style.display = 'none';
+        }
+    }
+
+    fieldTypeSelect.addEventListener('change', toggleSections);
+    toggleSections();
+</script>
+
+{% endblock %}

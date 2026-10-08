@@ -1,0 +1,210 @@
+{% extends "vendors/vendor_dashboard.html" %}
+{% block title %}Contact Listing Plans – {{ business.company_name }}{% endblock %}
+{% block title_header %}Contact Listing Plans{% endblock %}
+
+{% block extra_head %}
+<style>
+    .plan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+
+    .plan-card {
+        border-radius: 20px;
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
+        padding: 28px 24px;
+        position: relative;
+        transition: transform .25s, box-shadow .25s, border-color .25s;
+        display: flex;
+        flex-direction: column;
+    }
+    .plan-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 40px rgba(37,99,235,.12);
+        border-color: #93c5fd;
+    }
+    .plan-card.popular {
+        border-color: #2563eb;
+        box-shadow: 0 8px 30px rgba(37,99,235,.18);
+    }
+    .popular-badge {
+        position: absolute;
+        top: -13px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg,#2563eb,#7c3aed);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        padding: 4px 16px;
+        border-radius: 30px;
+        white-space: nowrap;
+    }
+    .plan-icon {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        background: #eff6ff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
+    .plan-name { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+    .plan-validity { font-size: 13px; color: #64748b; margin-bottom: 18px; }
+    .plan-price { font-size: 42px; font-weight: 800; color: #2563eb; line-height: 1; }
+    .plan-price span { font-size: 16px; font-weight: 500; color: #94a3b8; }
+    .plan-desc { font-size: 13px; color: #64748b; margin-top: 12px; flex-grow: 1; }
+    .plan-features { list-style: none; padding: 0; margin: 16px 0 0; }
+    .plan-features li { font-size: 13px; color: #475569; padding: 4px 0; }
+    .plan-features li i { color: #22c55e; margin-right: 8px; }
+    .plan-buy-btn {
+        margin-top: 20px;
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 15px;
+        background: linear-gradient(135deg,#2563eb,#1d4ed8);
+        color: #fff;
+        border: none;
+        text-decoration: none;
+        text-align: center;
+        transition: opacity .2s;
+    }
+    .plan-buy-btn:hover { opacity: .9; color: #fff; }
+    .plan-buy-btn.disabled-btn {
+        background: #e2e8f0;
+        color: #94a3b8;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Active subscription banner */
+    .active-plan-banner {
+        background: linear-gradient(135deg, #065f46, #059669);
+        border-radius: 16px;
+        padding: 20px 24px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    .active-plan-banner .icon { font-size: 36px; }
+    .active-plan-banner h6 { font-weight: 700; margin-bottom: 2px; font-size: 15px; }
+    .active-plan-banner small { opacity: .85; font-size: 13px; }
+    .no-plan-banner {
+        background: linear-gradient(135deg,#fef3c7,#fde68a);
+        border: 1.5px solid #fbbf24;
+        border-radius: 16px;
+        padding: 18px 22px;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 32px;
+    }
+    .no-plan-banner .icon { font-size: 28px; }
+    .no-plan-banner h6 { font-weight: 700; color: #78350f; margin-bottom: 2px; }
+    .no-plan-banner p { color: #92400e; font-size: 13px; margin: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="table-card">
+
+    <!-- Business Header -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h5 class="fw-bold mb-1">
+                <i class="bi bi-phone-fill text-primary me-2"></i>Contact Unlock Plans
+            </h5>
+            <p class="text-muted small mb-0">
+                For: <strong>{{ business.company_name }}</strong>
+                <span class="ms-2 badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                    {{ business.category.name|default:"No Category" }}
+                </span>
+            </p>
+        </div>
+        <a href="{% url 'vendors:view_business' business.pk %}" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Business
+        </a>
+    </div>
+
+    <!-- Active Subscription Banner -->
+    {% if active_subscription %}
+    <div class="active-plan-banner">
+        <div class="icon">✅</div>
+        <div>
+            <h6>{{ active_subscription.plan.name }} — Active</h6>
+            <small>
+                Clients can see your phone &amp; WhatsApp contact buttons.<br>
+                Expires: <strong>{{ active_subscription.end_date|date:"d M Y" }}</strong>
+                &nbsp;·&nbsp; {{ active_subscription.plan.validity_days }} day plan
+            </small>
+        </div>
+    </div>
+    {% else %}
+    <div class="no-plan-banner">
+        <div class="icon">⚠️</div>
+        <div>
+            <h6>No Active Listing Plan</h6>
+            <p>Purchase a plan below to let clients see your phone and WhatsApp contact options directly on your listing.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Plans Grid -->
+    {% if plans %}
+    <div class="plan-grid">
+        {% for plan in plans %}
+        <div class="plan-card {% if forloop.counter == 2 %}popular{% endif %}">
+
+            <!-- {% if forloop.counter == 2 %}
+            <div class="popular-badge"></div>
+            {% endif %} -->
+
+            <div class="plan-icon">📞</div>
+            <div class="plan-name">{{ plan.name }}</div>
+            <div class="plan-validity">
+                <i class="bi bi-calendar3 me-1"></i>Valid for {{ plan.validity_days }} days
+            </div>
+            <div class="plan-price">₹{{ plan.price }}<span>/plan</span></div>
+
+            {% if plan.description %}
+            <div class="plan-desc">{{ plan.description }}</div>
+            {% endif %}
+
+            <ul class="plan-features">
+                <li><i class="bi bi-check-circle-fill"></i>Phone call button visible to clients</li>
+                <li><i class="bi bi-check-circle-fill"></i>WhatsApp chat button visible</li>
+                <li><i class="bi bi-check-circle-fill"></i>Increased enquiry rate</li>
+                <li><i class="bi bi-check-circle-fill"></i>Valid for {{ plan.validity_days }} days from activation</li>
+            </ul>
+
+            {% if active_subscription and active_subscription.plan.id == plan.id %}
+            <div class="mt-3 text-center text-success fw-bold small">
+                <i class="bi bi-patch-check-fill me-1"></i>Current Plan Active
+            </div>
+            {% endif %}
+            <a href="{% url 'vendors:purchase_listing_plan' business.pk plan.pk %}"
+               class="plan-buy-btn">
+                {% if active_subscription and active_subscription.plan.id == plan.id %}
+                    Renew / Extend – ₹{{ plan.price }}
+                {% else %}
+                    Buy Now – ₹{{ plan.price }}
+                {% endif %}
+            </a>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-phone text-muted" style="font-size:60px;"></i>
+        <h5 class="mt-3 text-muted">No Plans Available</h5>
+        <p class="text-muted small">Contact the administrator to set up listing plans.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

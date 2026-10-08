@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Your Profile - JustKlik</title>
+  <link rel="stylesheet" href="{% static 'assets/css/accounts/auth_student.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/accounts/auth_shared.css' %}">
+  <style>
+    .onboarding-container { max-width: 640px; margin: 60px auto; padding: 40px; }
+    .step-badge { display: inline-block; background: var(--primary, #6366f1); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; }
+    .section-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .section-sub  { font-size: 14px; color: #64748b; margin-bottom: 32px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; margin-bottom: 18px; }
+    .form-group label { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #374151; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+      font-size: 14px; outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #6366f1; }
+    .check-group { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; cursor: pointer; }
+    .check-group input[type=checkbox] { width: 16px; height: 16px; }
+    .btn-submit-primary { width: 100%; padding: 14px; background: #6366f1; color: #fff; font-weight: 700; font-size: 15px; border: none; border-radius: 10px; cursor: pointer; margin-top: 12px; transition: background .2s; }
+    .btn-submit-primary:hover { background: #4f46e5; }
+    .btn-submit-primary:disabled { background: #a5b4fc; cursor: not-allowed; }
+    #statusMsg { text-align: center; font-size: 13px; color: #dc2626; margin-top: 12px; display: none; }
+  </style>
+</head>
+<body style="background: #f8fafc; min-height: 100vh;">
+
+<div class="onboarding-container">
+  <span class="step-badge">Step 2 of 2</span>
+  <h1 class="section-title">Complete your student profile</h1>
+  <p class="section-sub">This information helps us personalise your JustKlik experience. All fields are required.</p>
+
+  <form id="onboardingForm" autocomplete="off">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="fatherName">Father's Name</label>
+        <input type="text" id="fatherName" placeholder="Enter father's name">
+      </div>
+      <div class="form-group">
+        <label for="collegeCode">College Code</label>
+        <input type="text" id="collegeCode" placeholder="e.g. SRM123">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="course">Department / Course</label>
+        <input type="text" id="course" placeholder="e.g. B.Tech CSE">
+      </div>
+      <div class="form-group">
+        <label for="academicYear">Academic Year</label>
+        <input type="text" id="academicYear" placeholder="e.g. 2023-2027">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="yearOfStudy">Year of Study</label>
+        <select id="yearOfStudy">
+          <option value="">Select year</option>
+          <option>1st Year</option>
+          <option>2nd Year</option>
+          <option>3rd Year</option>
+          <option>4th Year</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="cgpa">CGPA / Percentage</label>
+        <input type="text" id="cgpa" placeholder="e.g. 8.5 or 85%">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="planAfterGrad">Plan After Graduation</label>
+      <select id="planAfterGrad">
+        <option value="">Select plan</option>
+        <option>Higher Studies</option>
+        <option>Job</option>
+        <option>Entrepreneurship</option>
+        <option>Government Services</option>
+        <option>Undecided</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="careerGoal">Career Goal</label>
+      <input type="text" id="careerGoal" placeholder="e.g. Software Engineer at a product company">
+    </div>
+
+    <div class="form-row">
+      <div class="check-group">
+        <input type="checkbox" id="internshipCompleted">
+        <label for="internshipCompleted" style="margin:0;font-weight:500;">Internship completed</label>
+      </div>
+      <div class="check-group">
+        <input type="checkbox" id="interestedInInternship" checked>
+        <label for="interestedInInternship" style="margin:0;font-weight:500;">Interested in internships</label>
+      </div>
+    </div>
+
+    <div class="check-group" style="margin-bottom:24px;">
+      <input type="checkbox" id="interestedAbroad">
+      <label for="interestedAbroad" style="margin:0;font-weight:500;">Interested in studying/working abroad</label>
+    </div>
+
+    <button type="button" class="btn-submit-primary" id="btnSubmit" onclick="submitOnboarding()">
+      Save &amp; Continue
+    </button>
+    <p id="statusMsg"></p>
+
+  </form>
+</div>
+
+<script>
+  const token = localStorage.getItem('access');
+  if (!token) { window.location.href = '/api/student-login'; }
+
+  function getVal(id) { return document.getElementById(id).value.trim(); }
+  function getChecked(id) { return document.getElementById(id).checked; }
+
+  function submitOnboarding() {
+    const btn = document.getElementById('btnSubmit');
+    const msg = document.getElementById('statusMsg');
+    msg.style.display = 'none';
+
+    const payload = {
+      father_name:             getVal('fatherName'),
+      college_code:            getVal('collegeCode'),
+      course:                  getVal('course'),
+      academic_year:           getVal('academicYear'),
+      year_of_study:           getVal('yearOfStudy'),
+      cgpa_percentage:         getVal('cgpa'),
+      course_reason:           [],
+      area_of_interest:        [],
+      skills_to_develop:       [],
+      plan_after_graduation:   getVal('planAfterGrad'),
+      interested_abroad:       getChecked('interestedAbroad') ? 'Yes' : 'No',
+      preferred_country:       '',
+      career_goal:             getVal('careerGoal'),
+      internship_completed:    getChecked('internshipCompleted'),
+      interested_in_internship: getChecked('interestedInInternship'),
+      certifications:          false,
+    };
+
+    // Simple required field check
+    const required = ['father_name','college_code','course','academic_year','year_of_study','cgpa_percentage','plan_after_graduation','career_goal'];
+    const missing = required.filter(k => !payload[k]);
+    if (missing.length) {
+      msg.textContent = 'Please fill in all required fields.';
+      msg.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    fetch('/api/student-onboarding', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = '/api/student-login-redirect';
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Save & Continue';
+        msg.textContent = data.message || 'Something went wrong. Please try again.';
+        msg.style.display = 'block';
+      }
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = 'Save & Continue';
+      msg.textContent = 'Network error. Please check your connection.';
+      msg.style.display = 'block';
+    });
+  }
+</script>
+
+</body>
+</html>

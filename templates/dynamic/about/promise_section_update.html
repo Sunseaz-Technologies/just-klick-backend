@@ -1,0 +1,188 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Manage Section Workspace{% endblock %}
+{% block title_header %}Workspace Manager{% endblock %}
+
+{% block content %}
+<style>
+.about-card {
+    border: none;
+    border-radius: 18px;
+}
+
+.action-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.icon-preview-box {
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+</style>
+
+<div class="container-fluid">
+    
+    <div class="card about-card shadow-sm mb-4">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-1">Configuration Deck</h4>
+                <p class="text-muted mb-0">Managing: <strong class="text-primary">{{ section.section_name }}</strong> Workspace</p>
+            </div>
+            <a href="{% url 'dynamic:promise_list' %}" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i> Back to Grid Table
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-xl-5 col-lg-6">
+            <div class="card about-card shadow-sm border-0 bg-white">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-sliders me-2 text-primary"></i>Section Details</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted small">Section Identifier Name</label>
+                            <input type="text" name="section_name" class="form-control" value="{{ section.section_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted small">Main Heading</label>
+                            <input type="text" name="title" class="form-control" value="{{ section.title }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted small">Description Text Block</label>
+                            <textarea name="description" class="form-control" rows="4" required>{{ section.description }}</textarea>
+                        </div>
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="sectionStatus" {% if section.is_active %}checked{% endif %}>
+                            <label class="form-check-label fw-semibold text-muted small" for="sectionStatus">Section Active</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2">Update Core Details</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-7 col-lg-6">
+            
+            <div class="card about-card shadow-sm border-0 {% if card_to_edit %}border-start border-warning border-4{% else %}border-start border-success border-4{% endif %} bg-white mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">
+                            {% if card_to_edit %}
+                                <i class="bi bi-pencil-square me-2 text-warning"></i>Modify Card: "{{ card_to_edit.title }}"
+                            {% else %}
+                                <i class="bi bi-plus-square me-2 text-success"></i>Append Component Item Card
+                            {% endif %}
+                        </h5>
+                        {% if card_to_edit %}
+                            <a href="{% url 'dynamic:promise_section_edit' section.id %}" class="btn btn-sm btn-light border text-secondary px-2 rounded">
+                                Clear / Add New
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <form action="{% url 'dynamic:promise_card_save' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="section_id" value="{{ section.id }}">
+                        {% if card_to_edit %}
+                            <input type="hidden" name="card_id" value="{{ card_to_edit.id }}">
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-sm-7 mb-3">
+                                <label class="form-label text-muted small fw-semibold">Card Title</label>
+                                <input type="text" name="title" class="form-control" value="{{ card_to_edit.title|default:'' }}" required>
+                            </div>
+                            <div class="col-sm-5 mb-3">
+                                <label class="form-label text-muted small fw-semibold">Bootstrap Icon Class</label>
+                                <input type="text" name="icon" class="form-control" placeholder="bi bi-star" value="{{ card_to_edit.icon|default:'bi bi-lightning-charge' }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-semibold">Feature Text Summary Description</label>
+                            <textarea name="description" class="form-control" rows="2" required>{{ card_to_edit.description|default:'' }}</textarea>
+                        </div>
+
+                        <div class="row align-items-center mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-muted small fw-semibold">Order ID Sequence Weight</label>
+                                <input type="number" name="display_order" class="form-control" value="{{ card_to_edit.display_order|default:0 }}">
+                            </div>
+                            <div class="col-6 pt-4">
+                                <div class="form-check form-switch ms-2">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="cardStatus" {% if card_to_edit.is_active or not card_to_edit %}checked{% endif %}>
+                                    <label class="form-check-label text-muted small fw-semibold" for="cardStatus">Display State</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn {% if card_to_edit %}btn-warning text-dark{% else %}btn-success{% endif %} w-100 py-2 fw-semibold">
+                            {% if card_to_edit %}<i class="bi bi-check-circle me-1"></i> Apply Changes{% else %}<i class="bi bi-plus-lg me-1"></i> Add Card to Set{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card about-card shadow-sm border-0 bg-white">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-2">
+                    <h5 class="fw-bold text-dark mb-0">Attached Cluster Components ({{ cards|length }})</h5>
+                </div>
+                <div class="card-body px-2 py-0">
+                    <div class="list-group list-group-flush">
+                        {% for card in cards %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-3 border-light rounded-3 mb-2 bg-light mx-2">
+                            <div class="d-flex align-items-center me-3">
+                                <div class="icon-preview-box bg-white border text-primary border-2 shadow-sm me-3 fs-4">
+                                    <i class="{{ card.icon }}"></i>
+                                </div>
+                                <div style="max-width: 320px;">
+                                    <h6 class="mb-1 fw-bold text-dark">
+                                        {{ card.title }}
+                                        <span class="badge bg-secondary fw-normal ms-1 fs-xs" style="font-size: 10px;">Seq: {{ card.display_order }}</span>
+                                    </h6>
+                                    <p class="mb-0 text-muted text-truncate small" style="max-width: 300px;">{{ card.description }}</p>
+                                    {% if not card.is_active %}
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-0 rounded mt-1" style="font-size: 9px;">Hidden</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="?edit_card={{ card.id }}" class="btn btn-outline-secondary bg-white btn-sm action-btn text-warning border" title="Modify Card">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form action="{% url 'dynamic:promise_card_delete' card.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" onclick="return confirm('Remove card structure permanently?')" class="btn btn-outline-secondary bg-white btn-sm action-btn text-danger border">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5 px-3">
+                            <i class="bi bi-folder-plus text-muted fs-2"></i>
+                            <p class="text-muted small mt-2">No functional asset cards defined yet. Enter parameters above to compile items.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

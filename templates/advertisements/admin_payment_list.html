@@ -1,0 +1,211 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+Advertisement Payments
+{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+
+    <div class="col-md-4">
+
+        <div class="card shadow border-0 rounded-4">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Successful Revenue
+                </h6>
+
+                <h2 class="text-success">
+                    ₹{{ total_amount }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card shadow border-0 rounded-4">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Total Transactions
+                </h6>
+
+                <h2 class="text-success">
+                    {{ total_transactions }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="mb-3 text-end">
+    <a href="{% url 'advertisements:advertisement_payment_export_csv' %}"
+       class="btn btn-success">
+        <i class="bi bi-download"></i> Export CSV
+    </a>
+</div>
+
+<div class="card shadow border-0 rounded-4">
+
+    <div class="card-header bg-primary text-white">
+
+        <h4 class="mb-0">
+
+            <i class="bi bi-credit-card-fill me-2"></i>
+
+            Advertisement Payment History
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th style="color: #243d7f;">S.No</th>
+                        <th style="color: #243d7f;">Vendor Name</th>
+                        <th style="color: #243d7f;">Email</th>
+                        <th style="color: #243d7f;">Phone</th>
+                        <th style="color: #243d7f;">Plan</th>
+                        <th style="color: #243d7f;">Amount</th>
+                        <th style="color: #243d7f;">Order ID</th>
+                        <th style="color: #243d7f;">Payment ID</th>
+                        <th style="color: #243d7f;">Status</th>
+                        <th style="color: #243d7f;">Date</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for payment in payments %}
+
+                    <tr>
+
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
+
+                        <td>
+
+                            {{ payment.vendor.get_full_name|default:"N/A" }}
+
+                        </td>
+
+                        <td>
+
+                            {{ payment.vendor.email }}
+
+                        </td>
+                        <td>
+                            {{ payment.vendor.phone }}
+                        </td>
+
+                        <td>
+
+                            {{ payment.plan.name }}
+
+                        </td>
+
+                        <td>
+
+                            ₹{{ payment.amount }}
+
+                        </td>
+
+                        <td>
+
+                            {{ payment.razorpay_order_id }}
+
+                        </td>
+
+                        <td>
+
+                            {{ payment.razorpay_payment_id|default:"-" }}
+
+                        </td>
+
+                        <td>
+
+                            {% if payment.status == "SUCCESS" %}
+
+                            <span class="badge bg-success">
+
+                                Success
+
+                            </span>
+
+                            {% elif payment.status == "PENDING" %}
+
+                            <span class="badge bg-warning text-dark">
+
+                                Pending
+
+                            </span>
+
+                            {% else %}
+
+                            <span class="badge bg-danger">
+
+                                Failed
+
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {{ payment.created_at|date:"d M Y h:i A" }}
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="9" class="text-center">
+
+                            No payment records found.
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+            
+        </div>
+
+    </div>
+    
+
+</div>
+{% include "includes/pagination.html" %}
+
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "vendors/vendor_dashboard.html" %}
+{% block title %}Complete Payment – {{ plan.name }}{% endblock %}
+{% block title_header %}Complete Payment{% endblock %}
+
+{% block content %}
+<div style="max-width:520px;margin:0 auto;">
+<div class="table-card text-center">
+
+    <!-- Icon -->
+    <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#eff6ff,#dbeafe);
+                display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px;">
+        📞
+    </div>
+
+    <h4 class="fw-bold mb-1">{{ plan.name }}</h4>
+    <p class="text-muted small mb-1">
+        <i class="bi bi-building me-1"></i>{{ business.company_name }}
+    </p>
+    <p class="text-muted small mb-4">
+        <i class="bi bi-calendar3 me-1"></i>Valid for {{ plan.validity_days }} days
+    </p>
+
+    <!-- Price -->
+    <div style="background:#eff6ff;border-radius:14px;padding:18px;margin-bottom:28px;">
+        <div style="font-size:13px;color:#64748b;margin-bottom:4px;">Total Amount</div>
+        <div style="font-size:44px;font-weight:800;color:#2563eb;line-height:1;">₹{{ plan.price }}</div>
+        <div style="font-size:12px;color:#94a3b8;margin-top:4px;">Secure payment via Razorpay</div>
+    </div>
+
+    <!-- What you get -->
+    <div class="text-start mb-4" style="background:#f8fafc;border-radius:14px;padding:16px;">
+        <div class="fw-semibold small mb-2 text-muted">WHAT YOU GET</div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            <span class="small">Phone call button visible to all clients</span>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            <span class="small">WhatsApp chat button visible to all clients</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            <span class="small">Active for {{ plan.validity_days }} days from today</span>
+        </div>
+    </div>
+
+    <!-- Razorpay Form -->
+    <form action="{% url 'vendors:verify_listing_plan_payment' %}" method="POST" id="razorpay-form">
+        {% csrf_token %}
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+        <input type="hidden" name="business_pk" value="{{ business.pk }}">
+        <input type="hidden" name="error[code]" id="error_code">
+        <input type="hidden" name="error[metadata][order_id]" id="error_order_id">
+
+        <button id="rzp-button" type="button"
+                style="width:100%;padding:14px;border-radius:12px;font-size:16px;font-weight:700;
+                       background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;cursor:pointer;
+                       transition:opacity .2s;">
+            <i class="bi bi-shield-lock-fill me-2"></i>Pay ₹{{ plan.price }} Securely
+        </button>
+    </form>
+
+    <p class="text-muted small mt-3">
+        <i class="bi bi-lock-fill me-1"></i>
+        256-bit SSL encrypted payment. Powered by Razorpay.
+    </p>
+
+    <a href="{% url 'vendors:listing_plans' business.pk %}" class="btn btn-link btn-sm text-muted mt-1">
+        ← Go back to plans
+    </a>
+
+</div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ amount }}",
+        "currency": "{{ currency }}",
+        "name": "JustKlick",
+        "description": "{{ plan.name }} – Contact Listing Plan for {{ business.company_name }}",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response) {
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.getElementById('razorpay-form').submit();
+        },
+        "prefill": {
+            "name": "{{ user_name }}",
+            "email": "{{ user_email }}",
+            "contact": "{{ user_phone }}"
+        },
+        "theme": { "color": "#2563eb" }
+    };
+
+    var rzp = new Razorpay(options);
+
+    rzp.on('payment.failed', function (response) {
+        document.getElementById('error_code').value = response.error.code;
+        document.getElementById('error_order_id').value = response.error.metadata.order_id;
+        document.getElementById('razorpay-form').submit();
+    });
+
+    document.getElementById('rzp-button').onclick = function (e) {
+        rzp.open();
+        e.preventDefault();
+    };
+
+    // Auto-open checkout modal
+    window.onload = function () { rzp.open(); };
+</script>
+{% endblock %}

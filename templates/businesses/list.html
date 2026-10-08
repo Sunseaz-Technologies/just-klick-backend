@@ -1,0 +1,181 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Businesses{% endblock %}
+{% block title_header %}Businesses{% endblock %}
+
+{% block extra_head %}
+<style>
+    .business-img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .business-img-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Filters -->
+<div class="table-card mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Search Businesses</label>
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" name="q" value="{{ request.GET.q }}"
+                       class="form-control border-start-0"
+                       placeholder="Search by company name...">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Location</label>
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-geo-alt text-muted"></i>
+                </span>
+                <input type="text" name="location" value="{{ request.GET.location }}"
+                       class="form-control border-start-0"
+                       placeholder="Filter by location...">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Status</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">All Status</option>
+                <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="verified" {% if request.GET.status == 'verified' %}selected{% endif %}>Verified</option>
+                <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Category</label>
+            <select name="category" class="form-select form-select-sm">
+                <option value="">All Categories</option>
+                {% for cat in category_choices %}
+                    <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2 justify-content-end">
+            <button type="submit" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" style="width: 38px; height: 31px;" title="Apply filters">
+                <i class="bi bi-funnel-fill"></i>
+            </button>
+            <a href="{% url 'businesses:list' %}" class="btn btn-light btn-sm d-flex align-items-center justify-content-center" style="width: 38px; height: 31px;" title="Reset">
+                <i class="bi bi-arrow-clockwise"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="table-card">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="mb-0 fw-bold" style="color: #b01f2c;">All Businesses</h5>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2">
+                Total {{ businesses.paginator.count }} Businesses
+            </span>
+            <a href="{% url 'businesses:create' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Add Business
+            </a>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th style="color: #243d7f;">S.No</th>
+                <th style="color: #243d7f;">Image</th>
+                <th style="color: #243d7f;">Company</th>
+                <th style="color: #243d7f;">Slug</th>
+                <th style="color: #243d7f;">Category</th>
+                <th style="color: #243d7f;">Location</th>
+                <th style="color: #243d7f;">Contact</th>
+                <th style="color: #243d7f;">Status</th>
+                <th style="color: #243d7f;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in businesses %}
+            <tr>
+                <td class="text-muted">{{ forloop.counter }}</td>
+                <td>
+                    {% with first_img=b.images.first %}
+                        {% if first_img %}
+                            <img src="{{ first_img.image.url }}" alt="{{ b.company_name }}" class="business-img">
+                        {% else %}
+                            <div class="business-img-placeholder">
+                                <i class="bi bi-building"></i>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </td>
+                <td class="fw-medium">{{ b.company_name }}</td>
+                <td><code class="text-muted small">{{ b.slug }}</code></td>
+                <td>
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">
+                        {{ b.category.name|default:"—" }}
+                    </span>
+                </td>
+                <td class="text-muted small">{{ b.location }}</td>
+                <td>
+                    <div class="small">{{ b.email }}</div>
+                    <div class="small text-muted">{{ b.phone }}</div>
+                </td>
+                <td>
+                    {% if b.status == 'verified' %}
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10">Verified</span>
+                    {% elif b.status == 'rejected' %}
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-10">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'businesses:detail' b.pk %}" class="btn btn-sm btn-light text-info" title="View">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'businesses:edit' b.pk %}" class="btn btn-sm btn-light text-primary" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'businesses:delete' b.pk %}" class="btn btn-sm btn-light text-danger" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center py-5 text-muted">
+                    <i class="bi bi-building fs-3 d-block mb-2"></i>
+                    No businesses found.
+                    {% if request.GET.q or request.GET.status or request.GET.category or request.GET.location %}
+                        <a href="{% url 'businesses:list' %}">Clear filters</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include "includes/pagination.html" %}
+</div>
+{% endblock %}

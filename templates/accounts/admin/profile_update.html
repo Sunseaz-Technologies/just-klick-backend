@@ -1,0 +1,747 @@
+{% extends "dashboard.html" %}
+
+{% block title %}My Profile{% endblock %}
+{% block title_header %}My Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+        --accent-color: #2563eb;
+        --card-border-radius: 16px;
+        --hover-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Page Header ── */
+    .profile-header-gradient {
+        background: var(--primary-gradient);
+        color: #ffffff;
+        border-radius: var(--card-border-radius);
+        padding: 24px;
+        box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.25);
+        margin-bottom: 25px;
+    }
+
+    /* ── Cover Card ── */
+    .profile-cover-card {
+        border: none;
+        border-radius: var(--card-border-radius);
+        background: #fff;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .profile-cover {
+        height: 130px;
+        background: var(--primary-gradient);
+        position: relative;
+    }
+
+    .profile-cover-body {
+        padding: 60px 28px 24px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .profile-avatar-wrap {
+        position: absolute;
+        bottom: -48px;
+        left: 28px;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+        width: 90px;
+        height: 90px;
+    }
+
+    .profile-avatar-img {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        object-fit: cover;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        display: block;
+    }
+
+    .profile-avatar-placeholder {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        background: #2563eb;
+        color: #fff;
+        font-size: 30px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+
+    .avatar-camera-btn {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        transition: var(--hover-transition);
+        z-index: 2;
+    }
+
+    .avatar-camera-btn:hover { background: #f1f5f9; }
+    .avatar-camera-btn i { font-size: 12px; color: #64748b; }
+
+    /* Delete Button Overlay Style */
+    .avatar-delete-btn {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+        transition: var(--hover-transition);
+        z-index: 2;
+    }
+    
+    .avatar-delete-btn:hover {
+        background: #ef4444;
+    }
+    .avatar-delete-btn:hover i {
+        color: #ffffff;
+    }
+    .avatar-delete-btn i { font-size: 12px; color: #ef4444; transition: var(--hover-transition); }
+
+    .profile-cover-meta .name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 2px;
+    }
+
+    .profile-cover-meta .email {
+        font-size: 13px;
+        color: #94a3b8;
+    }
+
+    .profile-cover-meta .role-badge {
+        display: inline-block;
+        margin-top: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #EFF6FF;
+        color: #2563eb;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* ── Form Section Cards ── */
+    .form-group-card {
+        border: none;
+        border-radius: var(--card-border-radius);
+        background: #ffffff;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 25px;
+        transition: var(--hover-transition);
+    }
+
+    .form-group-card:hover {
+        box-shadow: 0 8px 16px -2px rgba(0,0,0,0.06);
+    }
+
+    .form-group-card .card-header {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 16px 24px;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: var(--card-border-radius) var(--card-border-radius) 0 0;
+    }
+
+    .form-group-card .card-header i {
+        color: #2563eb;
+        font-size: 1.1rem;
+    }
+
+    .form-group-card .card-body {
+        padding: 24px;
+    }
+
+    /* ── Form Controls ── */
+    .form-label {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.88rem;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        padding: 11px 16px;
+        font-size: 0.95rem;
+        transition: var(--hover-transition);
+        color: #1e293b;
+    }
+
+    .form-control:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .form-control[readonly] {
+        background: #f8fafc;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    .form-text {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 5px;
+    }
+
+    /* ── Image Upload Box ── */
+    .image-upload-box {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 28px 20px;
+        text-align: center;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: var(--hover-transition);
+    }
+
+    .image-upload-box:hover {
+        border-color: #2563eb;
+        background: #eff6ff;
+    }
+
+    .image-upload-box i {
+        font-size: 2.4rem;
+        color: #94a3b8;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .image-upload-box .upload-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 4px;
+    }
+
+    .image-upload-box .upload-hint {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    /* ── Password Strength ── */
+    .password-strength-bar {
+        height: 4px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        margin-top: 8px;
+        overflow: hidden;
+    }
+
+    .password-strength-fill {
+        height: 100%;
+        border-radius: 10px;
+        width: 0%;
+        transition: width 0.3s ease, background 0.3s ease;
+    }
+
+    .strength-text {
+        font-size: 11px;
+        margin-top: 4px;
+        font-weight: 600;
+    }
+
+    /* ── Buttons ── */
+    .btn-save-profile {
+        background: var(--primary-gradient);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        transition: var(--hover-transition);
+    }
+
+    .btn-save-profile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        color: #fff;
+    }
+
+    .btn-cancel-profile {
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        font-size: 14px;
+        border: 1.5px solid #e2e8f0;
+        color: #64748b;
+        background: #fff;
+        transition: var(--hover-transition);
+    }
+
+    .btn-cancel-profile:hover {
+        background: #f8fafc;
+        color: #475569;
+    }
+
+    /* ── Info Row ── */
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-row i {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #EFF6FF;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+
+    .info-row .info-label {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .info-row .info-value {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    #profileImageFileInput { display: none; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container-fluid px-0 mb-5">
+
+    <form method="POST"
+          action="#"
+          enctype="multipart/form-data">
+
+        {% csrf_token %}
+        
+        <input type="hidden" name="delete_profile_image" id="deleteProfileImageFlag" value="false">
+
+        <div class="row g-4">
+
+            <div class="col-lg-4">
+
+                <div class="profile-cover-card">
+                    <div class="profile-cover">
+                        <div class="profile-avatar-wrap">
+                            <div class="profile-avatar-container" id="avatarContainer">
+                                {% if user_obj.profile_image %}
+                                    <img src="{{ user_obj.profile_image.url }}"
+                                         class="profile-avatar-img"
+                                         id="avatarPreview"
+                                         alt="Profile Photo">
+                                    
+                                    <button type="button" class="avatar-delete-btn" id="avatarDeleteBtn" title="Remove photo" onclick="removeAvatar()">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                {% else %}
+                                    <div class="profile-avatar-placeholder" id="avatarPreview">
+                                        {{ user_obj.first_name|first|upper|default:"A" }}
+                                    </div>
+                                    <button type="button" class="avatar-delete-btn d-none" id="avatarDeleteBtn" title="Remove photo" onclick="removeAvatar()">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                {% endif %}
+
+                                <label for="profileImageFileInput" class="avatar-camera-btn" title="Change photo">
+                                    <i class="bi bi-camera-fill"></i>
+                                </label>
+
+                                <input type="file"
+                                       id="profileImageFileInput"
+                                       name="profile_image"
+                                       accept="image/*"
+                                       onchange="previewAvatar(this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-cover-body">
+                        <div class="profile-cover-meta" style="margin-top: 10px;">
+                            <p class="name">{{ user_obj.get_full_name|default:"Admin User" }}</p>
+                            <p class="email">{{ user_obj.email }}</p>
+                            <span class="role-badge">Administrator</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card form-group-card">
+                    <div class="card-header">
+                        <i class="bi bi-info-circle-fill"></i>
+                        Account Info
+                    </div>
+                    <div class="card-body py-2 px-3">
+
+                        <div class="info-row">
+                            <i class="bi bi-person-fill"></i>
+                            <div>
+                                <div class="info-label">Full Name</div>
+                                <div class="info-value">{{ user_obj.get_full_name|default:"—" }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <i class="bi bi-envelope-fill"></i>
+                            <div>
+                                <div class="info-label">Email</div>
+                                <div class="info-value">{{ user_obj.email }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <i class="bi bi-shield-fill-check"></i>
+                            <div>
+                                <div class="info-label">Role</div>
+                                <div class="info-value">Administrator</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <i class="bi bi-calendar3"></i>
+                            <div>
+                                <div class="info-label">Joined</div>
+                                <div class="info-value">{{ user_obj.date_joined|date:"d M Y" }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <i class="bi bi-clock-fill"></i>
+                            <div>
+                                <div class="info-label">Last Login</div>
+                                <div class="info-value">{{ user_obj.last_login|date:"d M Y, H:i"|default:"—" }}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-8">
+
+                <div class="card form-group-card">
+                    <div class="card-header">
+                        <i class="bi bi-person-fill"></i>
+                        Personal Information
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text"
+                                       name="first_name"
+                                       class="form-control"
+                                       placeholder="Enter first name"
+                                       value="{{ user_obj.first_name }}">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text"
+                                       name="last_name"
+                                       class="form-control"
+                                       placeholder="Enter last name"
+                                       value="{{ user_obj.last_name }}">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="border-radius:10px 0 0 10px; border:1.5px solid #e2e8f0; background:#f8fafc;">
+                                        <i class="bi bi-envelope text-muted"></i>
+                                    </span>
+                                    <input type="email"
+                                           class="form-control"
+                                           value="{{ user_obj.email }}"
+                                           readonly
+                                           style="border-radius:0 10px 10px 0;">
+                                </div>
+                                <div class="form-text">Email cannot be changed. Contact support if needed.</div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card form-group-card">
+                    <div class="card-header">
+                        <i class="bi bi-image-fill"></i>
+                        Profile Photo
+                    </div>
+                    <div class="card-body">
+
+                        <div class="image-upload-box"
+                             onclick="document.getElementById('profileImageFileInput').click();">
+                            <i class="bi bi-cloud-arrow-up-fill"></i>
+                            <div class="upload-title">Click to upload a new photo</div>
+                            <div class="upload-hint">JPG, PNG or WEBP — max 5MB</div>
+                        </div>
+
+                        <div class="mt-3 d-none" id="selectedFileInfo">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span class="fw-semibold text-success" style="font-size:13px;" id="selectedFileName"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card form-group-card">
+                    <div class="card-header">
+                        <i class="bi bi-lock-fill"></i>
+                        Change Password
+                        <span class="ms-auto badge" style="background:#EFF6FF; color:#2563eb; font-size:11px; font-weight:600;">Optional</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+
+                            <div class="col-12">
+                                <label class="form-label">Current Password</label>
+                                <div class="input-group">
+                                    <input type="password"
+                                           name="current_password"
+                                           id="currentPassword"
+                                           class="form-control"
+                                           placeholder="Enter current password"
+                                           style="border-radius:10px 0 0 10px;">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            style="border-radius:0 10px 10px 0; border:1.5px solid #e2e8f0;"
+                                            onclick="togglePassword('currentPassword', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">New Password</label>
+                                <div class="input-group">
+                                    <input type="password"
+                                           name="new_password"
+                                           id="newPassword"
+                                           class="form-control"
+                                           placeholder="Enter new password"
+                                           style="border-radius:10px 0 0 10px;"
+                                           oninput="checkStrength(this.value)">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            style="border-radius:0 10px 10px 0; border:1.5px solid #e2e8f0;"
+                                            onclick="togglePassword('newPassword', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength-bar">
+                                    <div class="password-strength-fill" id="strengthFill"></div>
+                                </div>
+                                <div class="strength-text" id="strengthText"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm New Password</label>
+                                <div class="input-group">
+                                    <input type="password"
+                                           name="confirm_password"
+                                           id="confirmPassword"
+                                           class="form-control"
+                                           placeholder="Confirm new password"
+                                           style="border-radius:10px 0 0 10px;">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            style="border-radius:0 10px 10px 0; border:1.5px solid #e2e8f0;"
+                                            onclick="togglePassword('confirmPassword', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="p-3 rounded-3" style="background:#f8fafc; border:1px solid #f1f5f9; font-size:12px; color:#64748b;">
+                                    <i class="bi bi-info-circle me-1 text-primary"></i>
+                                    Leave password fields empty if you don't want to change your password.
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end align-items-center gap-3">
+                    <a href="{% url 'dashboard' %}" class="btn btn-cancel-profile">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-save-profile">
+                        <i class="bi bi-check2-circle me-2"></i>Save Changes
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+    // Preview avatar on file select
+    function previewAvatar(input) {
+        const fileInfo = document.getElementById('selectedFileInfo');
+        const fileName = document.getElementById('selectedFileName');
+        const deleteBtn = document.getElementById('avatarDeleteBtn');
+        const deleteFlag = document.getElementById('deleteProfileImageFlag');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const preview = document.getElementById('avatarPreview');
+                // Reset the deletion flag if a new picture is chosen
+                deleteFlag.value = "false";
+                
+                if (preview.tagName === 'DIV') {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'profile-avatar-img';
+                    img.id = 'avatarPreview';
+                    preview.replaceWith(img);
+                } else {
+                    preview.src = e.target.result;
+                }
+                // Show trash overlay icon
+                deleteBtn.classList.remove('d-none');
+            };
+            reader.readAsDataURL(input.files[0]);
+
+            fileName.textContent = input.files[0].name;
+            fileInfo.classList.remove('d-none');
+        }
+    }
+
+    // Client-side execution to clear current image choice
+    function removeAvatar() {
+        const preview = document.getElementById('avatarPreview');
+        const deleteBtn = document.getElementById('avatarDeleteBtn');
+        const fileInput = document.getElementById('profileImageFileInput');
+        const deleteFlag = document.getElementById('deleteProfileImageFlag');
+        const fileInfo = document.getElementById('selectedFileInfo');
+        
+        // Mark image as intended for deletion for backend view processing
+        deleteFlag.value = "true";
+        fileInput.value = ""; // clear selected upload
+        fileInfo.classList.add('d-none');
+
+        // Render Premium Text Placeholder
+        const fallbackDiv = document.createElement('div');
+        fallbackDiv.className = 'profile-avatar-placeholder';
+        fallbackDiv.id = 'avatarPreview';
+        fallbackDiv.textContent = '{{ user_obj.first_name|first|upper|default:"A" }}';
+        
+        preview.replaceWith(fallbackDiv);
+        deleteBtn.classList.add('d-none');
+    }
+
+    // Toggle password visibility
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    }
+
+    // Password strength checker
+    function checkStrength(val) {
+        const fill = document.getElementById('strengthFill');
+        const text = document.getElementById('strengthText');
+
+        if (!val) {
+            fill.style.width = '0%';
+            text.textContent = '';
+            return;
+        }
+
+        let score = 0;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        const levels = [
+            { width: '25%', color: '#ef4444', label: 'Weak' },
+            { width: '50%', color: '#f97316', label: 'Fair' },
+            { width: '75%', color: '#eab308', label: 'Good' },
+            { width: '100%', color: '#22c55e', label: 'Strong' },
+        ];
+
+        const level = levels[score - 1] || levels[0];
+        fill.style.width = level.width;
+        fill.style.background = level.color;
+        text.textContent = level.label;
+        text.style.color = level.color;
+    }
+</script>
+{% endblock %}

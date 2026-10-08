@@ -1,0 +1,485 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Create About Section{% endblock %}
+{% block title_header %}Create About Section{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        --accent-color: #7c3aed;
+        --card-border-radius: 16px;
+        --hover-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .form-header-gradient {
+        background: var(--primary-gradient);
+        color: #ffffff;
+        border-radius: var(--card-border-radius);
+        padding: 24px;
+        box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.25);
+        margin-bottom: 25px;
+    }
+
+    .form-group-card {
+        border: none;
+        border-radius: var(--card-border-radius);
+        background: #ffffff;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(241, 245, 249, 0.9);
+        margin-bottom: 25px;
+        transition: var(--hover-transition);
+    }
+
+    .form-group-card:hover {
+        box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.06);
+    }
+
+    .form-group-card .card-header {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 16px 24px;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group-card .card-header i {
+        color: #4f46e5;
+        font-size: 1.25rem;
+    }
+
+    .form-group-card .card-body {
+        padding: 24px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        padding: 11px 16px;
+        font-size: 0.95rem;
+        transition: var(--hover-transition);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.88rem;
+        margin-bottom: 8px;
+    }
+
+    .stats-form-box {
+        background-color: #f8fafc;
+        border-radius: 12px;
+        padding: 18px;
+        border: 1px dashed #e2e8f0;
+        transition: var(--hover-transition);
+        height: 100%;
+    }
+
+    .stats-form-box:hover {
+        border-color: #4f46e5;
+        background-color: #f5f3ff;
+    }
+
+    .feature-form-box {
+        background-color: #f8fafc;
+        border-radius: 12px;
+        padding: 18px;
+        border: 1px dashed #e2e8f0;
+        transition: var(--hover-transition);
+        height: 100%;
+    }
+
+    .feature-form-box:hover {
+        border-color: #10b981;
+        background-color: #f0fdf4;
+    }
+
+    .file-input-wrapper {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        background-color: #f8fafc;
+        cursor: pointer;
+        transition: var(--hover-transition);
+    }
+
+    .file-input-wrapper:hover {
+        border-color: #4f46e5;
+        background-color: #f5f3ff;
+    }
+
+    .btn-submit-premium {
+        background: var(--primary-gradient);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 28px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        transition: var(--hover-transition);
+    }
+
+    .btn-submit-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        color: #ffffff;
+    }
+
+    .btn-cancel-premium {
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: var(--hover-transition);
+    }
+
+    .input-icon-preview {
+        position: relative;
+    }
+
+    .input-icon-preview input {
+        padding-left: 42px;
+    }
+
+    .input-icon-preview .icon-indicator {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 1.1rem;
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0 mb-5">
+
+    <!-- Form Title Header -->
+    <div class="form-header-gradient">
+        <h3 class="fw-bold mb-1">Create About Section</h3>
+        <p class="mb-0 text-white-50">Create a new dynamic content section representing your platform's mission, counters, and strengths.</p>
+    </div>
+
+    <!-- Main Action Form -->
+    <form method="POST" enctype="multipart/form-data" class="needs-validation" >
+        {% csrf_token %}
+
+        <!-- 1. General & Header Info -->
+        <div class="card form-group-card">
+            <div class="card-header">
+                <i class="bi bi-info-circle-fill"></i>
+                Basic Info & Header Tags
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_section_tag">Section Tag</label>
+                        <input type="text" id="id_section_tag" name="section_tag" class="form-control" placeholder="e.g. ABOUT JUSTKLICK" required value="ABOUT JUSTKLICK">
+                        <small class="form-text text-muted">A small tag displayed right above the heading in red/bold style.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_top_badge_text">Top Floating Badge Text</label>
+                        <input type="text" id="id_top_badge_text" name="top_badge_text" class="form-control" placeholder="e.g. Verified Education Services" required value="Verified Education Services">
+                        <small class="form-text text-muted">Floating badge text shown over the main visual image preview.</small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="id_main_title">Main Heading Title</label>
+                        <input type="text" id="id_main_title" name="main_title" class="form-control" placeholder="e.g. Built to simplify trusted local discovery." required>
+                        <small class="form-text text-muted">The main visually-highlighted tagline text.</small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="id_main_description">Main Paragraph Description</label>
+                        <textarea id="id_main_description" name="main_description" class="form-control" rows="5" placeholder="Write the comprehensive platform description..." required></textarea>
+                        <small class="form-text text-muted">Detailed description text representing who you are and what you connect.</small>
+                    </div>
+                </div>
+        <!-- Our Mission Settings -->
+        <!-- <div class="card form-group-card">
+            <div class="card-header">
+                 Trusted Student Services
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_mission_title">Title</label>
+                        <input type="text" id="id_mission_title" name="mission_title" class="form-control" placeholder="e.g. Our mission" required value="Our mission">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_mission_icon"> Icon Class</label>
+                        <div class="input-icon-preview">
+                            <i class="bi bi-flag icon-indicator" id="preview_mission_icon"></i>
+                            <input type="text" id="id_mission_icon" name="mission_icon" class="form-control" placeholder="e.g. bi bi-flag" required value="bi bi-flag" oninput="updateIconIndicator(this, 'preview_mission_icon')">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="id_mission_description"> Description</label>
+                        <textarea id="id_mission_description" name="mission_description" class="form-control" rows="3" placeholder="To simplify the overseas study journey..." required></textarea>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- 2. Call To Action (Button Settings) -->
+        <div class="card form-group-card">
+            <div class="card-header">
+                <i class="bi bi-link-45deg"></i>
+                Call to Action Links
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_button_text">Button Text</label>
+                        <input type="text" id="id_button_text" name="button_text" class="form-control" placeholder="e.g. Explore Features" required value="Explore Features">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_button_link">Button Target Link (URL)</label>
+                        <input type="text" id="id_button_link" name="button_link" class="form-control" placeholder="e.g. /categories/ or #explore" value="/">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Visual Media (Main Image) -->
+        <div class="card form-group-card">
+            <div class="card-header">
+                <i class="bi bi-image-fill"></i>
+                Visual Image Content
+            </div>
+            <div class="card-body">
+                <label class="form-label">Upload Section Image</label>
+                <div class="file-input-wrapper" onclick="document.getElementById('id_about_image').click();">
+                    <i class="bi bi-cloud-arrow-up-fill text-muted mb-2" style="font-size: 2.5rem; display: block;"></i>
+                    <span class="d-block fw-bold text-dark mb-1">Click to Upload Main Section Image</span>
+                    <span class="text-muted small">Supports JPG, PNG, WEBP formats</span>
+                    <input type="file" id="id_about_image" name="about_image" class="form-control d-none" required onchange="updateFileLabel(this)">
+                </div>
+                <div class="text-center mt-2 d-none" id="file_selected_label_container">
+                    <span class="badge bg-success" id="file_selected_label">No file chosen</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Trust Banner Details (Stats Card) -->
+        <div class="card form-group-card">
+            <div class="card-header">
+                <i class="bi bi-patch-check-fill"></i>
+                Trust Badge Settings
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_trust_card_title">Trust Badge Metric Title</label>
+                        <input type="text" id="id_trust_card_title" name="trust_card_title" class="form-control" placeholder="e.g. 100+" required value="Trusted">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_trust_card_subtitle">Trust Badge Subtitle Label</label>
+                        <input type="text" id="id_trust_card_subtitle" name="trust_card_subtitle" class="form-control" placeholder="e.g. Student Services" required value="Student Services">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Platform Statistics -->
+        <div class="card form-group-card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart-fill"></i>
+                Platform Statistics Counters
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Stat 1: Visitors -->
+                    <div class="col-12 col-md-4">
+                        <div class="stats-form-box">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-people-fill text-primary me-2"></i>Visitor Statistics</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Bootstrap Icon Class</label>
+                                <div class="input-icon-preview">
+                                    <i class="bi bi-eye icon-indicator" id="preview_visitors_icon"></i>
+                                    <input type="text" name="visitors_icon" class="form-control" placeholder="e.g. bi bi-eye" required value="bi bi-eye" oninput="updateIconIndicator(this, 'preview_visitors_icon')">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Count / Numeric value</label>
+                                <input type="text" name="visitors_count" class="form-control" placeholder="e.g. 100k+" required value="100k+">
+                            </div>
+                            <div>
+                                <label class="form-label">Label Description</label>
+                                <input type="text" name="visitors_label" class="form-control" placeholder="e.g. Monthly Visitors" required value="Visitors">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 2: Students -->
+                    <div class="col-12 col-md-4">
+                        <div class="stats-form-box">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-mortarboard-fill text-primary me-2"></i>Student Statistics</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Bootstrap Icon Class</label>
+                                <div class="input-icon-preview">
+                                    <i class="bi bi-mortarboard icon-indicator" id="preview_students_icon"></i>
+                                    <input type="text" name="students_icon" class="form-control" placeholder="e.g. bi bi-mortarboard" required value="bi bi-mortarboard" oninput="updateIconIndicator(this, 'preview_students_icon')">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Count / Numeric value</label>
+                                <input type="text" name="students_count" class="form-control" placeholder="e.g. 24/7" required value="24/7">
+                            </div>
+                            <div>
+                                <label class="form-label">Label Description</label>
+                                <input type="text" name="students_label" class="form-control" placeholder="e.g. Active Support" required value="Students">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 3: Businesses -->
+                    <div class="col-12 col-md-4">
+                        <div class="stats-form-box">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-building-fill text-primary me-2"></i>Business Statistics</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Bootstrap Icon Class</label>
+                                <div class="input-icon-preview">
+                                    <i class="bi bi-building icon-indicator" id="preview_businesses_icon"></i>
+                                    <input type="text" name="businesses_icon" class="form-control" placeholder="e.g. bi bi-building" required value="bi bi-building" oninput="updateIconIndicator(this, 'preview_businesses_icon')">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Count / Numeric value</label>
+                                <input type="text" name="businesses_count" class="form-control" placeholder="e.g. 500+" required value="6+">
+                            </div>
+                            <div>
+                                <label class="form-label">Label Description</label>
+                                <input type="text" name="businesses_label" class="form-control" placeholder="e.g. Verified Partners" required value="Businesses">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Features Pillars -->
+        <div class="card form-group-card">
+            <div class="card-header">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+                Key Highlight Features (Pillars)
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Feature 1 -->
+                    <div class="col-12 col-md-4">
+                        <div class="feature-form-box">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-star-fill text-success me-2"></i>Feature 1</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Icon Class</label>
+                                <div class="input-icon-preview">
+                                    <i class="bi bi-patch-check icon-indicator" id="preview_f1_icon"></i>
+                                    <input type="text" name="feature_one_icon" class="form-control" placeholder="e.g. bi bi-patch-check" required value="bi bi-patch-check" oninput="updateIconIndicator(this, 'preview_f1_icon')">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Title / Heading</label>
+                                <input type="text" name="feature_one_title" class="form-control" placeholder="e.g. Verified Providers" required value="Verified Providers">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="col-12 col-md-4">
+                        <div class="feature-form-box">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-star-fill text-success me-2"></i>Feature 2</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Icon Class</label>
+                                <div class="input-icon-preview">
+                                    <i class="bi bi-chat-left-text icon-indicator" id="preview_f2_icon"></i>
+                                    <input type="text" name="feature_two_icon" class="form-control" placeholder="e.g. bi bi-chat-left-text" required value="bi bi-chat-left-text" oninput="updateIconIndicator(this, 'preview_f2_icon')">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Title / Heading</label>
+                                <input type="text" name="feature_two_title" class="form-control" placeholder="e.g. Student Enquiries" required value="Student Enquiries">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="col-12 col-md-4">
+                        <div class="feature-form-box">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-star-fill text-success me-2"></i>Feature 3</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Icon Class</label>
+                                <div class="input-icon-preview">
+                                    <i class="bi bi-search-heart icon-indicator" id="preview_f3_icon"></i>
+                                    <input type="text" name="feature_three_icon" class="form-control" placeholder="e.g. bi bi-search-heart" required value="bi bi-search-heart" oninput="updateIconIndicator(this, 'preview_f3_icon')">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Title / Heading</label>
+                                <input type="text" name="feature_three_title" class="form-control" placeholder="e.g. Smart Discovery" required value="Smart Discovery">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Active Status Switcher -->
+        <div class="card form-group-card">
+            <div class="card-body py-3">
+                <div class="form-check form-switch d-flex align-items-center gap-3">
+                    <input type="checkbox" id="id_is_active" name="is_active" class="form-check-input" checked style="width: 2.8rem; height: 1.4rem; cursor: pointer;">
+                    <label class="form-check-label fw-bold text-dark" for="id_is_active" style="cursor: pointer;">
+                        Activate this About Section immediately on the homepage client interface
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Submit & Cancel -->
+        <div class="d-flex justify-content-end align-items-center gap-3 mt-4">
+            <a href="{% url 'dynamic:about_list' %}" class="btn btn-light btn-cancel-premium text-muted">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-submit-premium">
+                <i class="bi bi-send-fill me-2"></i>Save About Section
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% block extra_js %}
+<script>
+    function updateFileLabel(input) {
+        const fileContainer = document.getElementById('file_selected_label_container');
+        const fileLabel = document.getElementById('file_selected_label');
+        if (input.files && input.files.length > 0) {
+            fileLabel.textContent = "Selected file: " + input.files[0].name;
+            fileContainer.classList.remove('d-none');
+        } else {
+            fileContainer.classList.add('d-none');
+        }
+    }
+
+    function updateIconIndicator(input, targetIconId) {
+        const iconEl = document.getElementById(targetIconId);
+        if (iconEl) {
+            // strip 'bi' prefix logic if user writes bi bi-icon
+            const val = input.value.trim();
+            iconEl.className = val ? val + ' icon-indicator' : 'bi bi-question-circle icon-indicator';
+        }
+    }
+</script>
+{% endblock %}
+
+{% endblock %}

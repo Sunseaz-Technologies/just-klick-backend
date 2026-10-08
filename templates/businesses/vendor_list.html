@@ -1,0 +1,138 @@
+{% extends "dashboard.html" %}
+
+{% block title %}All Vendors{% endblock %}
+{% block title_header %}All Vendors {% endblock %}
+
+{% block content %}
+<style>
+    .filter-card  { border: none; border-radius: 18px; margin-bottom: 20px; }
+    .search-box .input-group-text { background: #fff; border-right: none; height: 48px; }
+    .search-box .form-control     { border-left: none; height: 48px; box-shadow: none; }
+    .search-box .form-control:focus { box-shadow: none; }
+    .table-card   { border: none; border-radius: 18px; }
+    .table thead th { font-size: 13px; font-weight: 700; color: #495057; text-transform: uppercase; }
+    .action-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .export-btn { height: 48px; border-radius: 12px; font-weight: 600; padding: 0 20px; display: flex; align-items: center; gap: 6px; }
+</style>
+
+<!-- ── Filter / Search Card ── -->
+<div class="card filter-card shadow-sm">
+    <div class="card-body p-4">
+        <form method="GET" id="filterForm">
+            <div class="row g-3 align-items-center">
+
+                <div class="col-lg-6">
+                    <div class="input-group search-box">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" class="form-control"
+                               placeholder="Search by name, email or phone…"
+                               value="{{ request.GET.q }}">
+                    </div>
+                </div>
+
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-primary w-100"
+                            style="height:48px; border-radius:12px; font-weight:600;">
+                        Search
+                    </button>
+                </div>
+
+                <div class="col-lg-2">
+                    <a href="{% url 'vendor_export_csv' %}?q={{ request.GET.q }}"
+                       class="btn btn-success export-btn w-100">
+                        <i class="bi bi-filetype-csv"></i> Export CSV
+                    </a>
+                </div>
+
+                {% if request.GET.q %}
+                <div class="col-lg-2">
+                    <a href="{% url 'vendor_list' %}"
+                       class="btn btn-outline-secondary w-100"
+                       style="height:48px; border-radius:12px; font-weight:600;">
+                        <i class="bi bi-x-circle me-1"></i>Clear
+                    </a>
+                </div>
+                {% endif %}
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── Table Card ── -->
+<div class="card table-card shadow-sm">
+    <div class="card-header bg-white border-0 py-3 px-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="fw-bold mb-0" style="color:#b01f2c;">All Vendors</h5>
+                <p class="text-muted mb-0" style="font-size:13px;">Manage vendor accounts</p>
+            </div>
+            <span class="badge bg-primary px-3 py-2">
+                {{ page_obj.paginator.count }} total
+            </span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="color:#243d7f;">S.No</th>
+                    <th style="color:#243d7f;">Name</th>
+                    <th style="color:#243d7f;">Email</th>
+                    <th style="color:#243d7f;">Phone</th>
+                    <th style="color:#243d7f;">Joined</th>
+                    <th style="color:#243d7f;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vendor in vendors %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td class="fw-semibold">
+    {% if vendor.get_full_name %}
+        {{ vendor.get_full_name }}
+    {% elif vendor.first_name %}
+        {{ vendor.first_name }} {{ vendor.last_name }}
+    {% elif vendor.username %}
+        {{ vendor.username }}
+    {% else %}
+        —
+    {% endif %}
+</td>
+                    <td style="color:#3369e7;">{{ vendor.email }}</td>
+                    <td>{{ vendor.phone|default:"—" }}</td>
+                    <td class="text-muted" style="font-size:13px;">{{ vendor.date_joined|date:"d M Y" }}</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'businesses:payment_detail' vendor.id %}"
+                               class="btn btn-outline-info btn-sm action-btn" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'businesses:payment_edit' vendor.id %}"
+                               class="btn btn-outline-warning btn-sm action-btn" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <i class="bi bi-people fs-1 text-muted d-block mb-3"></i>
+                        {% if request.GET.q %}
+                            No vendors found for "<strong>{{ request.GET.q }}</strong>".
+                        {% else %}
+                            No vendors found.
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "includes/pagination.html" %}
+</div>
+
+{% endblock %}

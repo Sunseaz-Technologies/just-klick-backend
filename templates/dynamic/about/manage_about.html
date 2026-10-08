@@ -1,0 +1,480 @@
+{% extends "dashboard.html" %}
+{% block title %}About Us Management{% endblock %}
+{% block title_header %}About Us Management{% endblock %}
+
+{% block content %}
+<style>
+.section-card { border-radius: 14px; border: none; }
+.section-header { background: #f8fafc; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; }
+.table-actions .btn { padding: 3px 10px; font-size: 12px; }
+</style>
+
+<div class="container-fluid">
+
+  {# ── FLASH ── #}
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags }} alert-dismissible fade show">{{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    {% endfor %}
+  {% endif %}
+
+  {# ══════════════════════════════════════════════════════════════
+     BLOCK 1 — ABOUT INFORMATION
+  ══════════════════════════════════════════════════════════════ #}
+  <div class="card section-card shadow-sm mb-4">
+    <div class="card-body p-4">
+      <div class="section-header d-flex align-items-center mb-3">
+        <i class="bi bi-info-circle-fill text-primary me-2"></i>
+        <h6 class="fw-bold mb-0">1. About Information</h6>
+      </div>
+      <form method="POST" action="{% url 'dynamic:about_save' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold text-muted">Badge Text</label>
+            <input type="text" name="badge" class="form-control" value="{{ about.badge|default:'ABOUT JUSTKLICK' }}" required>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label small fw-semibold text-muted">Main Title</label>
+            <input type="text" name="title" class="form-control" value="{{ about.title }}" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-semibold text-muted">Description</label>
+            <textarea name="description" class="form-control" rows="3">{{ about.description }}</textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold text-muted">Button Text</label>
+            <input type="text" name="button_text" class="form-control" value="{{ about.button_text|default:'Explore Features' }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold text-muted">Button Link</label>
+            <input type="text" name="button_link" class="form-control" value="{{ about.button_link }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold text-muted">About Image</label>
+            {% if about.about_image %}<img src="{{ about.about_image.url }}" height="50" class="d-block mb-1 rounded">{% endif %}
+            <input type="file" name="about_image" class="form-control" accept="image/*">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Top Badge</label>
+            <input type="text" name="top_badge_text" class="form-control" value="{{ about.top_badge_text }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Trust Card Title</label>
+            <input type="text" name="trust_card_title" class="form-control" value="{{ about.trust_card_title }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Trust Card Subtitle</label>
+            <input type="text" name="trust_card_subtitle" class="form-control" value="{{ about.trust_card_subtitle }}">
+          </div>
+
+          {# Features #}
+          <div class="col-12"><hr class="my-1"><p class="small fw-bold text-muted mb-2">Bottom Features (Fixed 3)</p></div>
+          {% for n, label in '1,Verified Providers|2,Student Enquiries|3,Smart Discovery'|cut:' '|split:'|'|dictsort:0 %}{% endfor %}
+          <div class="col-md-2"><label class="form-label small text-muted">Icon 1</label><input type="text" name="feature_one_icon" class="form-control form-control-sm" value="{{ about.feature_one_icon }}" placeholder="bi bi-shield-check"></div>
+          <div class="col-md-2"><label class="form-label small text-muted">Title 1</label><input type="text" name="feature_one_title" class="form-control form-control-sm" value="{{ about.feature_one_title }}"></div>
+          <div class="col-md-2"><label class="form-label small text-muted">Icon 2</label><input type="text" name="feature_two_icon" class="form-control form-control-sm" value="{{ about.feature_two_icon }}" placeholder="bi bi-person-check"></div>
+          <div class="col-md-2"><label class="form-label small text-muted">Title 2</label><input type="text" name="feature_two_title" class="form-control form-control-sm" value="{{ about.feature_two_title }}"></div>
+          <div class="col-md-2"><label class="form-label small text-muted">Icon 3</label><input type="text" name="feature_three_icon" class="form-control form-control-sm" value="{{ about.feature_three_icon }}" placeholder="bi bi-search"></div>
+          <div class="col-md-2"><label class="form-label small text-muted">Title 3</label><input type="text" name="feature_three_title" class="form-control form-control-sm" value="{{ about.feature_three_title }}"></div>
+
+          {# Mission #}
+          <div class="col-12"><hr class="my-1"><p class="small fw-bold text-muted mb-2">Mission Block</p></div>
+          <div class="col-md-3"><label class="form-label small text-muted">Mission Icon</label><input type="text" name="mission_icon" class="form-control form-control-sm" value="{{ about.mission_icon }}" placeholder="bi bi-bullseye"></div>
+          <div class="col-md-9"><label class="form-label small text-muted">Mission Title</label><input type="text" name="mission_title" class="form-control form-control-sm" value="{{ about.mission_title }}"></div>
+          <div class="col-12"><label class="form-label small text-muted">Mission Description</label><textarea name="mission_description" class="form-control form-control-sm" rows="2">{{ about.mission_description }}</textarea></div>
+
+          {# Popular Services header #}
+          <div class="col-12"><hr class="my-1"><p class="small fw-bold text-muted mb-2">Popular Services Header</p></div>
+          <div class="col-md-6"><label class="form-label small text-muted">Section Title</label><input type="text" name="popular_service_title" class="form-control form-control-sm" value="{{ about.popular_service_title }}"></div>
+          <div class="col-12"><label class="form-label small text-muted">Section Description</label><textarea name="popular_service_description" class="form-control form-control-sm" rows="2">{{ about.popular_service_description }}</textarea></div>
+
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" name="is_active" {% if not about or about.is_active %}checked{% endif %}>
+              <label class="form-check-label small text-muted">Active</label>
+            </div>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-success px-5 fw-bold">
+              <i class="bi bi-save me-1"></i> Save About Info
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {# ══════════════════════════════════════════════════════════════
+     BLOCK 2 — COUNTERS
+  ══════════════════════════════════════════════════════════════ #}
+  <div class="card section-card shadow-sm mb-4">
+    <div class="card-body p-4">
+      <div class="section-header d-flex justify-content-between align-items-center">
+        <div><i class="bi bi-bar-chart-fill text-primary me-2"></i><span class="fw-bold">2. Counters</span></div>
+        <button class="btn btn-primary btn-sm rounded-pill px-3" onclick="openCounterModal()">
+          <i class="bi bi-plus-lg me-1"></i> Add Counter
+        </button>
+      </div>
+      <table class="table table-bordered table-sm align-middle">
+        <thead class="table-light"><tr><th>Count</th><th>Title</th><th width="120">Actions</th></tr></thead>
+        <tbody id="counter-table-body">
+          {% for c in counters %}
+          <tr id="counter-row-{{ c.id }}">
+            <td class="fw-bold">{{ c.count }}</td>
+            <td>{{ c.title }}</td>
+            <td class="table-actions">
+              <button class="btn btn-outline-warning btn-sm" onclick="openCounterModal({{ c.id }},'{{ c.count|escapejs }}','{{ c.title|escapejs }}',{{ c.order }})">Edit</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteCounter({{ c.id }})">Delete</button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr id="counter-empty"><td colspan="3" class="text-muted text-center small">No counters yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# ══════════════════════════════════════════════════════════════
+     BLOCK 3 — POPULAR SERVICES
+  ══════════════════════════════════════════════════════════════ #}
+  <div class="card section-card shadow-sm mb-4">
+    <div class="card-body p-4">
+      <div class="section-header d-flex justify-content-between align-items-center">
+        <div><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i><span class="fw-bold">3. Popular Services</span></div>
+        <button class="btn btn-primary btn-sm rounded-pill px-3" onclick="openServiceModal()">
+          <i class="bi bi-plus-lg me-1"></i> Add Service
+        </button>
+      </div>
+      <table class="table table-bordered table-sm align-middle">
+        <thead class="table-light"><tr><th>Service Name</th><th width="120">Actions</th></tr></thead>
+        <tbody id="service-table-body">
+          {% for s in services %}
+          <tr id="service-row-{{ s.id }}">
+            <td>{{ s.title }}</td>
+            <td class="table-actions">
+              <button class="btn btn-outline-warning btn-sm" onclick="openServiceModal({{ s.id }},'{{ s.title|escapejs }}',{{ s.order }})">Edit</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteService({{ s.id }})">Delete</button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr id="service-empty"><td colspan="2" class="text-muted text-center small">No services yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# ══════════════════════════════════════════════════════════════
+     BLOCK 4 — VALUES SECTION HEADER
+  ══════════════════════════════════════════════════════════════ #}
+  <div class="card section-card shadow-sm mb-4">
+    <div class="card-body p-4">
+      <div class="section-header"><i class="bi bi-award-fill text-primary me-2"></i><span class="fw-bold">4. Values Section Header</span></div>
+      <form method="POST" action="{% url 'dynamic:value_section_save' %}">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold text-muted">Badge</label>
+            <input type="text" name="badge" class="form-control" value="{{ value_section.badge|default:'OUR VALUES' }}" required>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label small fw-semibold text-muted">Title</label>
+            <input type="text" name="title" class="form-control" value="{{ value_section.title|default:'What we stand for' }}" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-semibold text-muted">Description</label>
+            <textarea name="description" class="form-control" rows="2">{{ value_section.description }}</textarea>
+          </div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" name="is_active" {% if not value_section or value_section.is_active %}checked{% endif %}>
+              <label class="form-check-label small text-muted">Active</label>
+            </div>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-success px-5 fw-bold">
+              <i class="bi bi-save me-1"></i> Save Values Header
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {# ══════════════════════════════════════════════════════════════
+     BLOCK 5 — VALUE ITEMS
+  ══════════════════════════════════════════════════════════════ #}
+  <div class="card section-card shadow-sm mb-4">
+    <div class="card-body p-4">
+      <div class="section-header d-flex justify-content-between align-items-center">
+        <div><i class="bi bi-tags-fill text-primary me-2"></i><span class="fw-bold">5. Value Items</span></div>
+        <button class="btn btn-primary btn-sm rounded-pill px-3" onclick="openValueModal()">
+          <i class="bi bi-plus-lg me-1"></i> Add Value
+        </button>
+      </div>
+      <table class="table table-bordered table-sm align-middle">
+        <thead class="table-light"><tr><th width="120">Icon</th><th>Title</th><th>Description</th><th width="120">Actions</th></tr></thead>
+        <tbody id="value-table-body">
+          {% for v in value_items %}
+          <tr id="value-row-{{ v.id }}">
+            <td><i class="{{ v.icon }}"></i> <small class="text-muted">{{ v.icon }}</small></td>
+            <td class="fw-semibold">{{ v.title }}</td>
+            <td class="small text-muted">{{ v.description|truncatechars:60 }}</td>
+            <td class="table-actions">
+              <button class="btn btn-outline-warning btn-sm" onclick="openValueModal({{ v.id }},'{{ v.icon|escapejs }}','{{ v.title|escapejs }}','{{ v.description|escapejs }}',{{ v.order }})">Edit</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteValue({{ v.id }})">Delete</button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr id="value-empty"><td colspan="4" class="text-muted text-center small">No value items yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>{# /container-fluid #}
+
+
+{# ══════════════════════════════════════════════════════════════
+   MODALS
+══════════════════════════════════════════════════════════════ #}
+
+{# Counter Modal #}
+<div class="modal fade" id="counterModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="modal-title fw-bold" id="counterModalTitle">Add Counter</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="counter-id">
+        <div class="mb-3"><label class="form-label small fw-semibold">Count <span class="text-danger">*</span></label><input type="text" id="counter-count" class="form-control" placeholder="e.g. 100+"></div>
+        <div class="mb-3"><label class="form-label small fw-semibold">Title <span class="text-danger">*</span></label><input type="text" id="counter-title" class="form-control" placeholder="e.g. Verified Partners"></div>
+        <div class="mb-3"><label class="form-label small fw-semibold">Order</label><input type="number" id="counter-order" class="form-control" value="0"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary btn-sm fw-bold" onclick="saveCounter()"><i class="bi bi-save me-1"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Service Modal #}
+<div class="modal fade" id="serviceModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="modal-title fw-bold" id="serviceModalTitle">Add Service</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="service-id">
+        <div class="mb-3"><label class="form-label small fw-semibold">Service Name <span class="text-danger">*</span></label><input type="text" id="service-title" class="form-control" placeholder="e.g. Overseas"></div>
+        <div class="mb-3"><label class="form-label small fw-semibold">Order</label><input type="number" id="service-order" class="form-control" value="0"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary btn-sm fw-bold" onclick="saveService()"><i class="bi bi-save me-1"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Value Item Modal #}
+<div class="modal fade" id="valueModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="modal-title fw-bold" id="valueModalTitle">Add Value Item</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="value-id">
+        <div class="mb-3"><label class="form-label small fw-semibold">Icon Class</label><input type="text" id="value-icon" class="form-control" placeholder="e.g. bi bi-search"></div>
+        <div class="mb-3"><label class="form-label small fw-semibold">Title <span class="text-danger">*</span></label><input type="text" id="value-title" class="form-control"></div>
+        <div class="mb-3"><label class="form-label small fw-semibold">Description</label><textarea id="value-desc" class="form-control" rows="3"></textarea></div>
+        <div class="mb-3"><label class="form-label small fw-semibold">Order</label><input type="number" id="value-order" class="form-control" value="0"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary btn-sm fw-bold" onclick="saveValue()"><i class="bi bi-save me-1"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const CSRF = "{{ csrf_token }}";
+
+// ── helpers ─────────────────────────────────────────────────────────────────
+function fetchJSON(url, body) {
+  return fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF },
+    body: JSON.stringify(body),
+  }).then(r => r.json());
+}
+
+function toast(msg, type = "success") {
+  const div = document.createElement("div");
+  div.className = `alert alert-${type} alert-dismissible fade show position-fixed bottom-0 end-0 m-3`;
+  div.style.zIndex = 9999;
+  div.innerHTML = `${msg}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 3000);
+}
+
+// ── COUNTER ─────────────────────────────────────────────────────────────────
+function openCounterModal(id = "", count = "", title = "", order = 0) {
+  document.getElementById("counter-id").value    = id;
+  document.getElementById("counter-count").value = count;
+  document.getElementById("counter-title").value = title;
+  document.getElementById("counter-order").value = order;
+  document.getElementById("counterModalTitle").textContent = id ? "Edit Counter" : "Add Counter";
+  new bootstrap.Modal(document.getElementById("counterModal")).show();
+}
+
+async function saveCounter() {
+  const id    = document.getElementById("counter-id").value;
+  const count = document.getElementById("counter-count").value.trim();
+  const title = document.getElementById("counter-title").value.trim();
+  const order = parseInt(document.getElementById("counter-order").value) || 0;
+
+  if (!count || !title) { toast("Count and Title are required.", "danger"); return; }
+
+  const data = await fetchJSON("{% url 'dynamic:counter_save' %}", { id: id || null, count, title, order });
+  if (!data.success) { toast(data.error, "danger"); return; }
+
+  const tbody = document.getElementById("counter-table-body");
+  document.getElementById("counter-empty")?.remove();
+
+  let row = document.getElementById(`counter-row-${data.id}`);
+  if (!row) {
+    row = document.createElement("tr");
+    row.id = `counter-row-${data.id}`;
+    tbody.appendChild(row);
+  }
+  row.innerHTML = `
+    <td class="fw-bold">${data.count}</td>
+    <td>${data.title}</td>
+    <td class="table-actions">
+      <button class="btn btn-outline-warning btn-sm" onclick="openCounterModal(${data.id},'${data.count}','${data.title}',${order})">Edit</button>
+      <button class="btn btn-outline-danger btn-sm" onclick="deleteCounter(${data.id})">Delete</button>
+    </td>`;
+  bootstrap.Modal.getInstance(document.getElementById("counterModal")).hide();
+  toast("Counter saved!");
+}
+
+async function deleteCounter(id) {
+  if (!confirm("Delete this counter?")) return;
+  const data = await fetchJSON(`/dashboard/counter/${id}/delete/`, {});
+  if (!data.success) { toast(data.error, "danger"); return; }
+  document.getElementById(`counter-row-${id}`)?.remove();
+  if (!document.querySelector("#counter-table-body tr")) {
+    document.getElementById("counter-table-body").innerHTML = '<tr id="counter-empty"><td colspan="3" class="text-muted text-center small">No counters yet.</td></tr>';
+  }
+  toast("Counter deleted.", "warning");
+}
+
+// ── POPULAR SERVICE ──────────────────────────────────────────────────────────
+function openServiceModal(id = "", title = "", order = 0) {
+  document.getElementById("service-id").value    = id;
+  document.getElementById("service-title").value = title;
+  document.getElementById("service-order").value = order;
+  document.getElementById("serviceModalTitle").textContent = id ? "Edit Service" : "Add Service";
+  new bootstrap.Modal(document.getElementById("serviceModal")).show();
+}
+
+async function saveService() {
+  const id    = document.getElementById("service-id").value;
+  const title = document.getElementById("service-title").value.trim();
+  const order = parseInt(document.getElementById("service-order").value) || 0;
+
+  if (!title) { toast("Service name is required.", "danger"); return; }
+
+  const data = await fetchJSON("{% url 'dynamic:service_save' %}", { id: id || null, title, order });
+  if (!data.success) { toast(data.error, "danger"); return; }
+
+  const tbody = document.getElementById("service-table-body");
+  document.getElementById("service-empty")?.remove();
+
+  let row = document.getElementById(`service-row-${data.id}`);
+  if (!row) {
+    row = document.createElement("tr");
+    row.id = `service-row-${data.id}`;
+    tbody.appendChild(row);
+  }
+  row.innerHTML = `
+    <td>${data.title}</td>
+    <td class="table-actions">
+      <button class="btn btn-outline-warning btn-sm" onclick="openServiceModal(${data.id},'${data.title}',${order})">Edit</button>
+      <button class="btn btn-outline-danger btn-sm" onclick="deleteService(${data.id})">Delete</button>
+    </td>`;
+  bootstrap.Modal.getInstance(document.getElementById("serviceModal")).hide();
+  toast("Service saved!");
+}
+
+async function deleteService(id) {
+  if (!confirm("Delete this service?")) return;
+  const data = await fetchJSON(`/dashboard/service/${id}/delete/`, {});
+  if (!data.success) { toast(data.error, "danger"); return; }
+  document.getElementById(`service-row-${id}`)?.remove();
+  if (!document.querySelector("#service-table-body tr")) {
+    document.getElementById("service-table-body").innerHTML = '<tr id="service-empty"><td colspan="2" class="text-muted text-center small">No services yet.</td></tr>';
+  }
+  toast("Service deleted.", "warning");
+}
+
+// ── VALUE ITEMS ──────────────────────────────────────────────────────────────
+function openValueModal(id = "", icon = "", title = "", desc = "", order = 0) {
+  document.getElementById("value-id").value    = id;
+  document.getElementById("value-icon").value  = icon;
+  document.getElementById("value-title").value = title;
+  document.getElementById("value-desc").value  = desc;
+  document.getElementById("value-order").value = order;
+  document.getElementById("valueModalTitle").textContent = id ? "Edit Value Item" : "Add Value Item";
+  new bootstrap.Modal(document.getElementById("valueModal")).show();
+}
+
+async function saveValue() {
+  const id    = document.getElementById("value-id").value;
+  const icon  = document.getElementById("value-icon").value.trim();
+  const title = document.getElementById("value-title").value.trim();
+  const desc  = document.getElementById("value-desc").value.trim();
+  const order = parseInt(document.getElementById("value-order").value) || 0;
+
+  if (!title) { toast("Title is required.", "danger"); return; }
+
+  const data = await fetchJSON("{% url 'dynamic:value_item_save' %}", { id: id || null, icon, title, description: desc, order });
+  if (!data.success) { toast(data.error, "danger"); return; }
+
+  const tbody = document.getElementById("value-table-body");
+  document.getElementById("value-empty")?.remove();
+
+  let row = document.getElementById(`value-row-${data.id}`);
+  if (!row) {
+    row = document.createElement("tr");
+    row.id = `value-row-${data.id}`;
+    tbody.appendChild(row);
+  }
+  row.innerHTML = `
+    <td><i class="${data.icon}"></i> <small class="text-muted">${data.icon}</small></td>
+    <td class="fw-semibold">${data.title}</td>
+    <td class="small text-muted">${data.description.substring(0, 60)}${data.description.length > 60 ? '...' : ''}</td>
+    <td class="table-actions">
+      <button class="btn btn-outline-warning btn-sm" onclick="openValueModal(${data.id},'${data.icon}','${data.title}','${data.description.replace(/'/g,"\\'")}',${order})">Edit</button>
+      <button class="btn btn-outline-danger btn-sm" onclick="deleteValue(${data.id})">Delete</button>
+    </td>`;
+  bootstrap.Modal.getInstance(document.getElementById("valueModal")).hide();
+  toast("Value item saved!");
+}
+
+async function deleteValue(id) {
+  if (!confirm("Delete this value item?")) return;
+  const data = await fetchJSON(`/dashboard/value-item/${id}/delete/`, {});
+  if (!data.success) { toast(data.error, "danger"); return; }
+  document.getElementById(`value-row-${id}`)?.remove();
+  if (!document.querySelector("#value-table-body tr")) {
+    document.getElementById("value-table-body").innerHTML = '<tr id="value-empty"><td colspan="4" class="text-muted text-center small">No value items yet.</td></tr>';
+  }
+  toast("Value item deleted.", "warning");
+}
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+
+<div class="card shadow-sm">
+
+    <div class="card-header bg-warning">
+
+        <h4>Update FAQ</h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="mb-3">
+
+                <label class="form-label" style="color: #243d7f;">
+                    Question
+                </label>
+
+                <input
+                    type="text"
+                    name="question"
+                    class="form-control"
+                    value="{{ item.question }}"
+                    required
+                >
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label" style="color: #243d7f;">
+                    Answer
+                </label>
+
+                <textarea
+                    name="answer"
+                    class="form-control"
+                    rows="5"
+                    required
+                >{{ item.answer }}</textarea>
+
+            </div>
+
+            <div class="form-check mb-3">
+
+                <input
+                    type="checkbox"
+                    name="is_active"
+                    class="form-check-input"
+                    {% if item.is_active %}checked{% endif %}
+                >
+
+                <label class="form-check-label" style="color: #243d7f;">
+                    Active
+                </label>
+
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-warning"
+            >
+                Update
+            </button>
+            <a href="{% url 'dynamic:faq_list' %}" class="btn btn-secondary">Cancel</a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

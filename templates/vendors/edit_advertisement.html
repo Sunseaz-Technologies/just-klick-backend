@@ -1,0 +1,95 @@
+{% extends 'vendors/vendor_dashboard.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-8">
+
+        <div class="card shadow border-0 rounded-4">
+
+            <div class="card-header bg-warning text-dark">
+
+                <h4 class="mb-0">
+
+                    Edit Advertisement
+
+                </h4>
+
+            </div>
+
+            <div class="card-body p-4">
+
+                <form method="POST" enctype="multipart/form-data">
+
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Current Image
+
+                        </label>
+
+                        <br>
+
+                        <img
+                            src="{{ ad.image.url }}"
+                            width="200"
+                            class="rounded"
+                        >
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Change Image
+
+                        </label>
+
+                        <input
+                            type="file"
+                            name="image"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Website URL
+
+                        </label>
+
+                        <input
+                            type="url"
+                            name="redirect_url"
+                            class="form-control"
+                            value="{{ ad.redirect_url }}"
+                            required
+                        >
+
+                    </div>
+
+                    <button class="btn btn-success">
+
+                        Update Advertisement
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

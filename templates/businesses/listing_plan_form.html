@@ -1,0 +1,138 @@
+{% extends "dashboard.html" %}
+{% block title %}{% if plan %}Edit Plan{% else %}Create Plan{% endif %}{% endblock %}
+{% block title_header %}{% if plan %}Edit Plan{% else %}Create Listing Plan{% endif %}{% endblock %}
+{% block content %}
+<div style="max-width:600px;">
+<div style="background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'businesses:listing_plan_list' %}" class="btn btn-sm btn-light me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <h5 class="mb-0 fw-bold">
+                {% if plan %}Edit "{{ plan.name }}"{% else %}New Contact Listing Plan{% endif %}
+            </h5>
+            <p class="text-muted small mb-0">
+                Vendors purchase these plans to show phone &amp; WhatsApp buttons on their listing.
+            </p>
+        </div>
+    </div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Plan Name <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control" required
+                   placeholder="e.g. Monthly, Quarterly, Yearly"
+                   value="{{ plan.name|default:'' }}">
+            <div class="form-text">A clear name vendors will recognise (Monthly, Half-Yearly, etc.)</div>
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+                <label class="form-label fw-semibold">Price (₹) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input type="number" name="price" class="form-control" required min="1" step="0.01"
+                           placeholder="299.00" value="{{ plan.price|default:'' }}">
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label class="form-label fw-semibold">Validity (Days) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input type="number" name="validity_days" class="form-control" required min="1"
+                           placeholder="30" value="{{ plan.validity_days|default:'' }}">
+                    <span class="input-group-text">days</span>
+                </div>
+                <div class="form-text">30 = Monthly, 90 = Quarterly, 180 = Half-Yearly, 365 = Yearly</div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea name="description" class="form-control" rows="3"
+                      placeholder="Optional: describe what this plan includes…">{{ plan.description|default:'' }}</textarea>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-semibold">Plan Features</label>
+
+            <div id="feature-container">
+                {% if plan and plan.features.all %}
+                    {% for f in plan.features.all %}
+                    <div class="input-group mb-2 feature-item">
+                        <input type="text" name="features" class="form-control"
+                               placeholder="Enter feature" value="{{ f.feature }}">
+                        <button type="button" class="btn btn-outline-danger remove-feature">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="input-group mb-2 feature-item">
+                        <input type="text" name="features" class="form-control" placeholder="Enter feature">
+                        <button type="button" class="btn btn-outline-danger remove-feature" style="display:none;">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="button" id="add-feature" class="btn btn-outline-primary btn-sm mt-2">
+                <i class="bi bi-plus-circle me-1"></i>
+                Add Feature
+            </button>
+
+            <div class="form-text">
+                Example: Unlimited Contact Access, WhatsApp Support, Priority Listing
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="isActive" name="is_active"
+                       {% if not plan or plan.is_active %}checked{% endif %}>
+                <label class="form-check-label fw-semibold" for="isActive">
+                    Active (vendors can see and purchase this plan)
+                </label>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="bi bi-check-lg me-1"></i>
+                {% if plan %}Save Changes{% else %}Create Plan{% endif %}
+            </button>
+            <a href="{% url 'businesses:listing_plan_list' %}" class="btn btn-light px-4">Cancel</a>
+        </div>
+    </form>
+</div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("feature-container");
+    const addButton = document.getElementById("add-feature");
+
+    addButton.addEventListener("click", function () {
+        const div = document.createElement("div");
+        div.className = "input-group mb-2 feature-item";
+        div.innerHTML = `
+            <input type="text" name="features" class="form-control" placeholder="Enter feature">
+            <button type="button" class="btn btn-outline-danger remove-feature">
+                <i class="bi bi-trash"></i>
+            </button>
+        `;
+        container.appendChild(div);
+
+        const removeButtons = container.querySelectorAll(".remove-feature");
+        if (removeButtons.length > 1) {
+            removeButtons.forEach(btn => btn.style.display = "inline-block");
+        }
+    });
+
+    container.addEventListener("click", function (e) {
+        const btn = e.target.closest(".remove-feature");
+        if (btn) {
+            btn.closest(".feature-item").remove();
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-primary text-white">
+
+            <h4 class="mb-0">
+                <i class="bi bi-plus-circle me-2"></i>
+                Create Why Choose Us
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST" enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold" style="color: #243d7f;">
+                        Title
+                    </label>
+
+                    <input type="text" name="title" class="form-control" placeholder="Enter title" required>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold" style="color: #243d7f;">
+                        Description
+                    </label>
+
+                    <textarea name="description" class="form-control" rows="5" placeholder="Enter description"
+                        required></textarea>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold" style="color: #243d7f;">
+                        Icon
+                    </label>
+
+                    <input type="file" name="icon" class="form-control" required>
+
+                </div>
+
+                <div class="form-check form-switch mb-4">
+
+                    <input class="form-check-input" type="checkbox" name="is_active" checked>
+
+                    <label class="form-check-label">
+                        Active
+                    </label>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Save
+                </button>
+
+                <a href="{% url 'dynamic:faq_list' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

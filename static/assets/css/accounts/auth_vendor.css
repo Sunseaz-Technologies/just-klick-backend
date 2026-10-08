@@ -1,0 +1,48 @@
+/*
+  auth-vendor.css
+  ───────────────
+  Brand-token overrides + split-screen layout for Vendor pages.
+  Link AFTER auth-shared.css.
+
+  Vendor palette: deep forest green (#198754)
+*/
+
+:root {
+  --accent:        #198754;
+  --accent-hover:  #157347;
+  --accent-glow:   rgba(25, 135, 84, 0.18);
+  --accent-soft:   rgba(25, 135, 84, 0.07);
+  --accent-border: rgba(25, 135, 84, 0.22);
+
+  /* Panel orbs go green */
+  --panel-orb-1: rgba(25, 135, 84, 0.40);
+  --panel-orb-2: rgba(20, 100, 60, 0.30);
+}
+
+/* Brand icon tint */
+.brand-icon {
+  background: rgba(25,135,84,0.08);
+  border-color: rgba(25,135,84,0.22);
+}
+
+/* Vendor-specific step badge */
+.step-badge { color: #166534; }
+
+/* Auth footer link */
+.auth-footer a { color: var(--accent); }
+
+/* Panel accent dot */
+.panel-logo-dot { background: #4ade80; }
+
+/* Mobile: show compact brand header instead of panel */
+@media (max-width: 520px) {
+  .auth-form-side::before {
+    content: 'JustKlik Vendor';
+    display: block;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+    margin-bottom: 28px;
+  }
+}

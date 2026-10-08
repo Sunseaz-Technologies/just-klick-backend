@@ -1,0 +1,66 @@
+{% extends 'vendors/vendor_dashboard.html' %}
+
+{% block title %}Complete Payment{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h3>Complete Your Payment for {{ plan.name }}</h3>
+    <p>Amount: ₹{{ plan.price }}</p>
+
+    <!-- Form to submit the verified payment back to the server -->
+    <form action="{% url 'advertisements:verify_payment' %}" method="POST" id="razorpay-form">
+        {% csrf_token %}
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+        <input type="hidden" name="error[code]" id="error_code">
+        <input type="hidden" name="error[metadata][order_id]" id="error_order_id">
+        
+        <button id="rzp-button1" type="button" class="btn btn-primary btn-lg mt-3">Pay with Razorpay</button>
+    </form>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key_id }}", // Enter the Key ID generated from the Dashboard
+        "amount": "{{ amount }}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "{{ currency }}",
+        "name": "JustKlick",
+        "description": "Purchase {{ plan.name }}",
+        "order_id": "{{ razorpay_order_id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        "handler": function (response){
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            // Submit the form automatically after success
+            document.getElementById('razorpay-form').submit();
+        },
+        "prefill": {
+            "name": "{{ user_name }}",
+            "email": "{{ user_email }}",
+            "contact": "{{ user_phone }}"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    
+    var rzp1 = new Razorpay(options);
+    
+    rzp1.on('payment.failed', function (response){
+            document.getElementById('error_code').value = response.error.code;
+            document.getElementById('error_order_id').value = response.error.metadata.order_id;
+            document.getElementById('razorpay-form').submit();
+    });
+    
+    document.getElementById('rzp-button1').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+    
+    // Auto-open checkout modal on page load
+    window.onload = function() {
+        rzp1.open();
+    };
+</script>
+{% endblock %}

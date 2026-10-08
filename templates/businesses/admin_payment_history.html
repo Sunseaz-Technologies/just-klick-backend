@@ -1,0 +1,231 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Business Payment History{% endblock %}
+{% block title_header %}Business Payment History{% endblock %}
+
+{% block content %}
+<!-- Metrics cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="card border-0 shadow-sm" style="border-radius:16px; padding:20px; background:#fff;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .05em;">Total Txns</span>
+                <i class="bi bi-hash fs-4 text-primary"></i>
+            </div>
+            <h4 class="fw-bold mb-0 text-dark">{{ total_transactions }}</h4>
+        </div>
+    </div>
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="card border-0 shadow-sm" style="border-radius:16px; padding:20px; background:#fff;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .05em;">Successful</span>
+                <i class="bi bi-check-circle fs-4 text-success"></i>
+            </div>
+            <h4 class="fw-bold mb-0 text-dark">{{ success_count }}</h4>
+        </div>
+    </div>
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="card border-0 shadow-sm" style="border-radius:16px; padding:20px; background:#fff;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .05em;">Pending</span>
+                <i class="bi bi-clock fs-4 text-warning"></i>
+            </div>
+            <h4 class="fw-bold mb-0 text-dark">{{ pending_count }}</h4>
+        </div>
+    </div>
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="card border-0 shadow-sm" style="border-radius:16px; padding:20px; background:#fff;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .05em;">Failed</span>
+                <i class="bi bi-x-circle fs-4 text-danger"></i>
+            </div>
+            <h4 class="fw-bold mb-0 text-dark">{{ failed_count }}</h4>
+        </div>
+    </div>
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="card border-0 shadow-sm" style="border-radius:16px; padding:20px; background:#fff;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .05em;">Income</span>
+                <i class="bi bi-currency-rupee fs-4 text-info"></i>
+            </div>
+            <h4 class="fw-bold mb-0 text-dark">₹{{ total_income }}</h4>
+        </div>
+    </div>
+</div>
+
+<div class="table-card" style="background:#fff; border-radius:16px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0" style="color: #b01f2c;">All Listing Plan Transactions</h5>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary">{{ page_obj.paginator.count }} total</span>
+            <a href="{% url 'businesses:payment_history_export' %}" class="btn btn-success btn-sm">
+                <i class="bi bi-download me-1"></i> Export CSV
+            </a>
+        </div>
+    </div>
+
+    {% if payments %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="color: #243d7f;">S.No</th>
+                    <th style="color: #243d7f;">Vendor</th>
+                    <th style="color: #243d7f;">Phone</th>
+                    <th style="color: #243d7f;">Business</th>
+                    <th style="color: #243d7f;">Plan</th>
+                    <th style="color: #243d7f;">Amount</th>
+                    <th style="color: #243d7f;">Status</th>
+                    <th style="color: #243d7f;">Razorpay Order ID</th>
+                    <th style="color: #243d7f;">Start Date</th>
+                    <th style="color: #243d7f;">End Date</th>
+                    <th style="color: #243d7f;">Date</th>
+                  
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ p.vendor.email }}</td>
+                    <td>{{ p.vendor.phone|default:"—" }}</td>
+                    <td>{{ p.business.company_name }}</td>
+                    <td>{{ p.plan.name }}</td>
+                    <td>₹{{ p.amount }}</td>
+                    <td>
+                        {% if p.payment_status == 'SUCCESS' %}
+                            <span class="badge bg-success">Success</span>
+                        {% elif p.payment_status == 'PENDING' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% else %}
+                            <span class="badge bg-danger">Failed</span>
+                        {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ p.razorpay_order_id }}</small></td>
+                    <td>{% if p.start_date %}{{ p.start_date|date:"d M Y" }}{% else %}—{% endif %}</td>
+                    <td>{% if p.end_date %}{{ p.end_date|date:"d M Y" }}{% else %}—{% endif %}</td>
+                    <td>{{ p.created_at|date:"d M Y, h:i A" }}</td>
+                    <td>
+                        <div class="d-flex gap-2">
+   
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include "includes/pagination.html" %}
+    {% else %}
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-credit-card fs-1 mb-3 d-block"></i>
+        <p>No payment transactions found.</p>
+    </div>
+    {% endif %}
+</div>
+
+
+<!-- ===================== EDIT MODAL ===================== -->
+<!-- <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0" style="border-radius:16px;">
+      <div class="modal-header border-0 px-4 pt-4 pb-2">
+        <h5 class="modal-title fw-bold" style="color:#243d7f;">
+            <i class="bi bi-pencil-square me-2"></i>Edit Payment Details
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body px-4 pb-2">
+        <form id="editPaymentForm">
+          {% csrf_token %}
+          <input type="hidden" id="edit-payment-id" name="payment_id">
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;">Payment Status</label>
+            <select class="form-select" id="edit-status" name="payment_status">
+              <option value="SUCCESS">Success</option>
+              <option value="PENDING">Pending</option>
+              <option value="FAILED">Failed</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;">Amount (₹)</label>
+            <input type="number" class="form-control" id="edit-amount" name="amount" step="0.01" min="0">
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;">Start Date</label>
+              <input type="date" class="form-control" id="edit-start" name="start_date">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;">End Date</label>
+              <input type="date" class="form-control" id="edit-end" name="end_date">
+            </div>
+          </div>
+
+          <div id="edit-form-error" class="alert alert-danger d-none py-2" style="font-size:13px;"></div>
+          <div id="edit-form-success" class="alert alert-success d-none py-2" style="font-size:13px;">Changes saved successfully!</div>
+        </form>
+      </div>
+      <div class="modal-footer border-0 px-4 pb-4 pt-2">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary px-4" onclick="submitEditForm()">
+            <i class="bi bi-check-lg me-1"></i>Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+<script>
+function openEditModal(btn) {
+    document.getElementById('edit-payment-id').value = btn.dataset.id;
+    document.getElementById('edit-status').value = btn.dataset.paymentStatus || 'SUCCESS';
+    document.getElementById('edit-amount').value = btn.dataset.amount || '';
+    document.getElementById('edit-start').value = btn.dataset.start || '';
+    document.getElementById('edit-end').value = btn.dataset.end || '';
+    document.getElementById('edit-form-error').classList.add('d-none');
+    document.getElementById('edit-form-success').classList.add('d-none');
+    new bootstrap.Modal(document.getElementById('editPaymentModal')).show();
+}
+
+function submitEditForm() {
+    const id = document.getElementById('edit-payment-id').value;
+    const errEl = document.getElementById('edit-form-error');
+    const sucEl = document.getElementById('edit-form-success');
+    errEl.classList.add('d-none');
+    sucEl.classList.add('d-none');
+
+    const formData = new FormData(document.getElementById('editPaymentForm'));
+
+    fetch(`/businesses/admin/payments/${id}/edit/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            sucEl.classList.remove('d-none');
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('editPaymentModal')).hide();
+                location.reload();
+            }, 1200);
+        } else {
+            errEl.textContent = data.error || 'Something went wrong.';
+            errEl.classList.remove('d-none');
+        }
+    })
+    .catch(() => {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.classList.remove('d-none');
+    });
+}
+</script>
+{% endblock %}

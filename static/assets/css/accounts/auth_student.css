@@ -1,0 +1,33 @@
+/*
+  auth-student.css
+  ────────────────
+  Brand-token overrides + split-screen layout for Student pages.
+  Link AFTER auth-shared.css.
+
+  Student palette: indigo blue (#2563eb) — default in :root.
+*/
+
+/* ── Left panel content ── */
+.panel-logo-dot { background: #60a5fa; }
+
+.panel-headline { font-size: 28px; }
+
+/* Mobile: show compact brand header instead of panel */
+@media (max-width: 520px) {
+  .auth-form-side::before {
+    content: 'JustKlik';
+    display: block;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+    margin-bottom: 28px;
+  }
+}
+
+/* ── Brand header (student pages use this instead of panel logo) ── */
+.brand-header h2 {
+  font-size: 24px;
+  letter-spacing: -0.6px;
+  font-weight: 800;
+}

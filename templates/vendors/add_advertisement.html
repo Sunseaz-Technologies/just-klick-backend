@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .advertisement-card {
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .custom-input {
+            height: 50px;
+            border-radius: 12px;
+            border: 1px solid #dbe2ea;
+        }
+
+        .custom-input:focus {
+            box-shadow: none;
+            border-color: #2563eb;
+        }
+
+        .form-label {
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            border: none;
+            border-radius: 12px;
+            height: 48px;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-outline-secondary {
+            border-radius: 12px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+        }
+
+        @media(max-width:768px) {
+
+            .card-body {
+                padding: 20px !important;
+            }
+
+            .btn-primary,
+            .btn-outline-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .d-flex.gap-3 {
+                flex-direction: column;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-8 col-md-10">
+
+                <div class="card advertisement-card shadow-sm border-0">
+
+                    <div class="card-header bg-white border-0 py-4">
+
+                        <h3 class="mb-1 fw-bold">
+                            <i class="bi bi-megaphone-fill text-primary"></i>
+                            Add Advertisement
+                        </h3>
+
+                        <p class="text-muted mb-0">
+                            Upload your advertisement banner and provide the destination URL.
+                        </p>
+
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <form method="POST" enctype="multipart/form-data">
+
+                            {% csrf_token %}
+
+                            <!-- Advertisement Image -->
+
+                            <div class="mb-4">
+
+                                <label class="form-label fw-semibold">
+                                    Advertisement Image
+                                </label>
+
+                                <input type="file" name="image" class="form-control custom-input" accept="image/*"
+                                    required>
+
+                                <small class="text-muted">
+                                    Recommended size: 1200 x 400 px
+                                </small>
+
+                            </div>
+
+                            <!-- Preview -->
+
+                            <div class="mb-4 text-center">
+
+                                <img id="previewImage" src="" class="img-fluid rounded shadow-sm d-none"
+                                    style="max-height:250px;">
+
+                            </div>
+
+                            <!-- URL -->
+
+                            <div class="mb-4">
+
+                                <label class="form-label fw-semibold">
+                                    Advertisement URL
+                                </label>
+
+                                <input type="url" name="redirect_url" class="form-control custom-input"
+                                    placeholder="https://example.com" required>
+
+                            </div>
+
+                            <!-- Buttons -->
+
+                            <div class="d-flex gap-3">
+
+                                <button type="submit" class="btn btn-primary px-4">
+
+                                    <i class="bi bi-check-circle"></i>
+                                    Save Advertisement
+
+                                </button>
+
+                                <a href="#" class="btn btn-outline-secondary">
+
+                                    Cancel
+
+                                </a>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const imageInput =
+                document.querySelector('input[name="image"]');
+
+            const previewImage =
+                document.getElementById("previewImage");
+
+            imageInput.addEventListener("change", function () {
+
+                const file = this.files[0];
+
+                if (file) {
+
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+
+                        previewImage.src = e.target.result;
+                        previewImage.classList.remove("d-none");
+
+                    }
+
+                    reader.readAsDataURL(file);
+
+                }
+
+            });
+
+        });
+
+    </script>
+</body>
+
+</html>

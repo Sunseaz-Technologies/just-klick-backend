@@ -1,0 +1,262 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Leads{% endblock %}
+{% block title_header %}Leads Management{% endblock %}
+
+{% block content %}
+<style>
+    .leads-filter-card { border: none; border-radius: 18px; }
+    .search-box .input-group-text { background: #fff; border-right: none; height: 48px; }
+    .search-box .form-control { border-left: none; height: 48px; box-shadow: none; }
+    .search-box .form-control:focus { box-shadow: none; }
+    .filter-btn, .search-btn, .export-btn { height: 48px; border-radius: 12px; font-weight: 600; }
+    .filter-area { background: #f8fafc; border-radius: 14px; padding: 20px; }
+    .filter-area label { font-size: 13px; font-weight: 600; color: #6c757d; margin-bottom: 6px; }
+    .filter-area .form-select { height: 48px; border-radius: 12px; }
+    .table-card { border: none; border-radius: 18px; }
+    .table thead th { font-size: 13px; font-weight: 700; color: #495057; text-transform: uppercase; }
+    .company-name { font-weight: 600; }
+    .custom-badge { padding: 8px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-block; }
+    .action-btn { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
+</style>
+
+<div class="container-fluid">
+    <div class="card leads-filter-card shadow-sm mb-4">
+        <div class="card-body p-4">
+            <form method="GET" id="filterForm">
+                <div class="row g-3 align-items-center">
+                    <div class="col-lg-5">
+                        <div class="input-group search-box">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" name="search" class="form-control"
+                                   placeholder="Search leads..."
+                                   value="{{ request.GET.search }}">
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-outline-primary w-100 filter-btn" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#leadFilters">
+                            <i class="bi bi-funnel"></i> Filters
+                        </button>
+                    </div>
+                    <div class="col-lg-2">
+                        <button type="submit" class="btn btn-primary w-100 search-btn">Search</button>
+                    </div>
+                    <!-- Export CSV Button -->
+                    <div class="col-lg-3 text-end">
+                        <a href="{% url 'lead_export_csv' %}?{{ request.GET.urlencode }}"
+                           class="btn btn-success export-btn px-4">
+                            <i class="bi bi-download me-1"></i> Export CSV
+                        </a>
+                    </div>
+                </div>
+
+                <div class="collapse mt-4 show" id="leadFilters">
+                    <div class="filter-area">
+                        <div class="row g-3">
+                            <div class="col-lg-3">
+                                <label>Status</label>
+                                <select name="status" class="form-select" onchange="this.form.submit()">
+                                    <option value="">All Statuses</option>
+                                    <option value="read"   {% if selected_status == "read"   %}selected{% endif %}>Read</option>
+                                    <option value="unread" {% if selected_status == "unread" %}selected{% endif %}>Unread</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-3">
+                                <label>Category</label>
+                                <select name="category" class="form-select" onchange="this.form.submit()">
+                                    <option value="">All Categories</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}"
+                                        {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-lg-3">
+                                <label>Company</label>
+                                <select name="company" class="form-select" onchange="this.form.submit()">
+                                    <option value="">Select Category First</option>
+                                    {% for company in companies %}
+                                    <option value="{{ company.id }}"
+                                        {% if request.GET.company == company.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ company.company_name }}
+                                    </option>
+                                    {% empty %}
+                                    <option value="">No Companies Found</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card table-card shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold" style="color: #b01f2c;">All Leads</h5>
+                <a href="{% url 'trash' %}" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash"></i> Trash
+                </a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="color: #243d7f;">S.No</th>
+                        <th style="color: #243d7f;">Lead</th>
+                        <th style="color: #243d7f;">Phone</th>
+                        <th style="color: #243d7f;">Subject</th>
+                        <th style="color: #243d7f;">Company</th>
+                        <th style="color: #243d7f;">Status</th>
+                        <th style="color: #243d7f;">Date</th>
+                        <th style="color: #243d7f;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in leads %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ lead.name }}</div>
+                            <small class="text-muted">{{ lead.email }}</small>
+                        </td>
+                        <td>{{ lead.phone }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ lead.subject }}</div>
+                            <small class="text-muted">{{ lead.message|truncatechars:40 }}</small>
+                        </td>
+                        <td>
+                            <div class="company-name">{{ lead.business.company_name }}</div>
+                            <small class="text-muted">{{ lead.business.category.name }}</small>
+                        </td>
+                        <td id="status-container-{{ lead.id }}">
+                            {% if lead.is_read %}
+                            <span class="badge bg-success custom-badge" onclick="toggleLeadStatus('{{ lead.id }}', 'read')">Read</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark custom-badge" onclick="toggleLeadStatus('{{ lead.id }}', 'unread')">Unread</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ lead.created_at|date:"d M Y" }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button type="button"
+                                        class="btn btn-outline-primary btn-sm action-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#leadModal{{ lead.id }}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <a href="{% url 'delete' lead.id %}"
+                                   onclick="return confirm('Delete this lead?')"
+                                   class="btn btn-outline-danger btn-sm action-btn">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Lead Detail Modal -->
+                    <div class="modal fade" id="leadModal{{ lead.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content text-start" style="border-radius: 16px;">
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title fw-bold text-dark">Lead Information</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Contact Name</label>
+                                            <span class="fw-semibold fs-5 text-dark">{{ lead.name }}</span>
+                                        </div>
+                                        <div>
+                                            <label class="text-muted small fw-bold text-uppercase mb-1 text-end d-block">Admin Status</label>
+                                            <div id="modal-status-container-{{ lead.id }}">
+                                                {% if lead.is_read %}
+                                                <span class="badge bg-success custom-badge" onclick="toggleLeadStatus('{{ lead.id }}', 'read')">Read</span>
+                                                {% else %}
+                                                <span class="badge bg-warning text-dark custom-badge" onclick="toggleLeadStatus('{{ lead.id }}', 'unread')">Unread</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Phone</label>
+                                            <a href="tel:{{ lead.phone }}" class="text-primary fw-semibold text-decoration-none">
+                                                <i class="bi bi-telephone-fill me-1"></i>{{ lead.phone }}
+                                            </a>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Email</label>
+                                            <a href="mailto:{{ lead.email }}" class="text-primary fw-semibold text-decoration-none">
+                                                <i class="bi bi-envelope-fill me-1"></i>{{ lead.email }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <hr class="text-muted my-3">
+                                    <div class="mb-3">
+                                        <label class="text-muted small fw-bold text-uppercase d-block mb-1">Subject</label>
+                                        <span class="fw-semibold text-dark">{{ lead.subject }}</span>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="text-muted small fw-bold text-uppercase d-block mb-1">Message Description</label>
+                                        <div class="p-3 bg-light rounded-3 text-secondary" style="white-space: pre-wrap;">{{ lead.message }}</div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-0 pt-0">
+                                    <button type="button" class="btn btn-secondary px-4 fw-semibold"
+                                            style="border-radius: 10px;" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <i class="bi bi-inbox fs-1 text-muted"></i>
+                            <p class="text-muted mt-3">No leads found based on your filters.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% include "includes/pagination.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleLeadStatus(leadId, currentStatus) {
+        const isCurrentlyRead = (currentStatus === 'read');
+        const nextStatusStr = isCurrentlyRead ? 'unread' : 'read';
+
+        const readBadgeHtml   = `<span class="badge bg-success custom-badge" onclick="toggleLeadStatus('${leadId}', 'read')">Read</span>`;
+        const unreadBadgeHtml = `<span class="badge bg-warning text-dark custom-badge" onclick="toggleLeadStatus('${leadId}', 'unread')">Unread</span>`;
+        const targetHtml = isCurrentlyRead ? unreadBadgeHtml : readBadgeHtml;
+
+        const listContainer  = document.getElementById(`status-container-${leadId}`);
+        const modalContainer = document.getElementById(`modal-status-container-${leadId}`);
+
+        if (listContainer)  listContainer.innerHTML  = targetHtml;
+        if (modalContainer) modalContainer.innerHTML = targetHtml;
+
+        const targetUrl = window.location.pathname +
+            `?toggle_status_id=${leadId}&target_mode=${nextStatusStr}&t=` + new Date().getTime();
+
+        fetch(targetUrl, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).catch(error => console.error('Status sync error:', error));
+    }
+</script>
+{% endblock %}

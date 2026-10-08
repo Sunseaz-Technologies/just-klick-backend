@@ -1,0 +1,72 @@
+{% extends 'dashboard.html' %}
+
+{% block content %}
+
+<div class="card p-4" style="box-shadow: rgba(17, 17, 26, 0.05) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;">
+
+    <h3 class="mb-4" style="color: #b01f2c;">
+        Create User
+    </h3>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label style="color: #243d7f;">Name</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label style="color: #243d7f;">Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label style="color: #243d7f;">Phone Number</label>
+            <input type="tel" name="phone" class="form-control" maxlength="10" pattern="[0-9]{10}" required>
+        </div>
+
+        <div class="mb-3">
+            <label style="color: #243d7f;">Password (Optional)</label>
+            <input type="password" name="password" class="form-control"
+                placeholder="Leave blank to auto-generate password">
+        </div>
+
+        <div class="mb-3">
+            <label style="color: #243d7f;">Role</label>
+
+            <select name="role" class="form-select">
+
+                <option value="">
+                    Select Role
+                </option>
+
+                {% for role in roles %}
+
+                <option value="{{ role.id }}">
+                    {{ role.name }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+
+            Create User
+
+        </button>
+
+        <a href="{% url 'users' %}" class="btn btn-secondary">
+
+            Cancel
+
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

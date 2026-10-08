@@ -1,0 +1,469 @@
+{% extends 'vendors/vendor_dashboard.html' %}
+
+{% block title %}Vendor Profile{% endblock %}
+{% block title_header %}Profile Settings{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+/* Scoped entirely under .vp-wrap so nothing conflicts with base template */
+.vp-wrap *,
+.vp-wrap *::before,
+.vp-wrap *::after {
+  box-sizing: border-box;
+}
+
+.vp-wrap {
+  --blue:     #2563eb;
+  --blue-l:   #EFF6FF;
+  --border:   #e2e8f0;
+  --dark:     #1e293b;
+  --mid:      #475569;
+  --mute:     #94a3b8;
+  --bg:       #f8fafc;
+  --r:        16px;
+  --r-sm:     10px;
+  --shadow:   0 4px 6px -1px rgba(0,0,0,.04), 0 2px 4px -1px rgba(0,0,0,.02);
+  --tr:       all 0.25s cubic-bezier(0.4,0,0.2,1);
+  padding-bottom: 48px;
+  font-family: inherit;
+}
+
+/* ── Two column layout ── */
+.vp-wrap .vp-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── Card ── */
+.vp-wrap .vp-card {
+  background: #fff;
+  border-radius: var(--r);
+  border: 1px solid #f1f5f9;
+  box-shadow: var(--shadow);
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+
+/* ── Profile Cover ── */
+.vp-wrap .vp-cover {
+  height: 140px;
+  background: var(--blue);
+  position: relative;
+}
+.vp-wrap .vp-avatar-wrap {
+  position: absolute;
+  bottom: -42px;
+  left: 24px;
+}
+.vp-wrap .vp-avatar-img {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+  display: block;
+}
+.vp-wrap .vp-avatar-ph {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 34px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+.vp-wrap .vp-cam-btn {
+  position: absolute;
+  bottom: 2px; right: 2px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,.06);
+  transition: var(--tr);
+}
+.vp-wrap .vp-cam-btn:hover { background: #f0f4ff; }
+.vp-wrap .vp-cam-btn i { font-size: 13px; color: #64748b; }
+.vp-wrap #vpFileInput { display: none; }
+
+.vp-wrap .vp-cover-body {
+  padding: 58px 24px 22px;
+}
+.vp-wrap .vp-name {
+  font-size: 20px; font-weight: 700; color: var(--dark); margin: 0 0 4px;
+}
+.vp-wrap .vp-email-txt {
+  font-size: 14px; color: var(--mute); margin-bottom: 12px;
+}
+.vp-wrap .vp-role-badge {
+  display: inline-block;
+  font-size: 12px; font-weight: 600;
+  background: var(--blue-l); color: var(--blue);
+  padding: 4px 14px; border-radius: 20px;
+}
+
+/* ── Card header ── */
+.vp-wrap .vp-card-hd {
+  background: var(--bg);
+  border-bottom: 1px solid #f1f5f9;
+  padding: 15px 22px;
+  font-weight: 700; font-size: 15px; color: #0f172a;
+  display: flex; align-items: center; gap: 10px;
+}
+.vp-wrap .vp-card-hd i { color: var(--blue); font-size: 1.1rem; }
+.vp-wrap .vp-card-bd { padding: 20px 22px; }
+
+/* ── Info rows ── */
+.vp-wrap .vp-info-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.vp-wrap .vp-info-row:last-child { border-bottom: none; }
+.vp-wrap .vp-icon-box {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--blue-l); color: var(--blue);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.vp-wrap .vp-info-label {
+  font-size: 11px; color: var(--mute); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1px;
+}
+.vp-wrap .vp-info-val {
+  font-size: 14px; font-weight: 600; color: var(--dark);
+}
+
+/* ── Inputs ── */
+.vp-wrap .vp-label {
+  display: block;
+  font-weight: 600; font-size: .87rem; color: var(--mid); margin-bottom: 7px;
+}
+.vp-wrap .vp-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 11px 15px;
+  font-size: .93rem; color: var(--dark);
+  background: #fff;
+  transition: var(--tr);
+  outline: none;
+  font-family: inherit;
+}
+.vp-wrap .vp-input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+.vp-wrap .vp-input[readonly] {
+  background: var(--bg) !important;
+  color: var(--mute);
+  cursor: not-allowed;
+}
+.vp-wrap .vp-hint {
+  font-size: 12px; color: var(--mute); margin-top: 5px;
+}
+
+/* email input group */
+.vp-wrap .vp-input-group { display: flex; }
+.vp-wrap .vp-input-group-text {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-right: none;
+  border-radius: var(--r-sm) 0 0 var(--r-sm);
+  padding: 0 13px;
+  display: flex; align-items: center; color: var(--mute);
+}
+.vp-wrap .vp-input-group .vp-input {
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  border-left: none;
+}
+
+/* ── 2-col / 1-col grid rows ── */
+.vp-wrap .vp-row-2 {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.vp-wrap .vp-row-1 { margin-top: 16px; }
+
+/* ── Upload box ── */
+.vp-wrap .vp-upload {
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 36px 24px;
+  text-align: center;
+  background: #fff;
+  cursor: pointer;
+  transition: var(--tr);
+}
+.vp-wrap .vp-upload:hover { border-color: var(--blue); background: var(--bg); }
+.vp-wrap .vp-upload i { font-size: 2.2rem; color: var(--mute); display: block; margin-bottom: 10px; }
+.vp-wrap .vp-upload-title { font-size: 15px; font-weight: 600; color: #334155; margin-bottom: 4px; }
+.vp-wrap .vp-upload-hint { font-size: 13px; color: var(--mute); }
+.vp-wrap .vp-file-chosen {
+  display: none; margin-top: 12px;
+  align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; color: #16a34a;
+}
+
+/* ── Password strength ── */
+.vp-wrap .vp-strength-bar {
+  height: 4px; border-radius: 10px;
+  background: var(--border); margin-top: 8px;
+}
+.vp-wrap .vp-strength-fill {
+  height: 100%; border-radius: 10px; width: 0%;
+  transition: width .3s ease, background .3s ease;
+}
+.vp-wrap .vp-strength-txt {
+  font-size: 11px; margin-top: 4px; font-weight: 600;
+}
+
+/* ── Save button ── */
+.vp-wrap .vp-btn-save {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #fff; border: none;
+  border-radius: var(--r-sm);
+  padding: 12px 32px;
+  font-weight: 600; font-size: 14px;
+  box-shadow: 0 4px 12px rgba(37,99,235,.2);
+  cursor: pointer;
+  transition: var(--tr);
+  font-family: inherit;
+}
+.vp-wrap .vp-btn-save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(37,99,235,.3);
+}
+
+/* ── Badge ── */
+.vp-wrap .vp-opt-badge {
+  margin-left: auto;
+  background: #f1f5f9; color: #64748b;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .vp-wrap .vp-grid  { grid-template-columns: 1fr; }
+  .vp-wrap .vp-row-2 { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="vp-wrap">
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="vp-grid">
+
+  <div>
+
+    <div class="vp-card">
+      <div class="vp-cover">
+        <div class="vp-avatar-wrap">
+          {% if vendor_obj.profile_image %}
+            <img src="{{ vendor_obj.profile_image.url }}" class="vp-avatar-img" id="vpAvatar" alt="Avatar">
+          {% elif request.user.profile_image %}
+            <img src="{{ request.user.profile_image.url }}" class="vp-avatar-img" id="vpAvatar" alt="Avatar">
+          {% else %}
+            <div class="vp-avatar-ph" id="vpAvatar">
+              {{ vendor_obj.first_name|first|upper|default:request.user.first_name|first|upper|default:"V" }}
+            </div>
+          {% endif %}
+          <label for="vpFileInput" class="vp-cam-btn" title="Change photo">
+            <i class="bi bi-camera-fill"></i>
+          </label>
+          <input type="file" id="vpFileInput" name="profile_image" accept="image/*" onchange="vpPreview(this)">
+        </div>
+      </div>
+      <div class="vp-cover-body">
+        <h3 class="vp-name">
+          {% if vendor_obj.first_name or vendor_obj.last_name %}
+            {{ vendor_obj.first_name }} {{ vendor_obj.last_name }}
+          {% elif request.user.first_name or request.user.last_name %}
+            {{ request.user.first_name }} {{ request.user.last_name }}
+          {% else %}
+            New Vendor Account
+          {% endif %}
+        </h3>
+        <p class="vp-email-txt">{{ vendor_obj.email|default:request.user.email }}</p>
+        <span class="vp-role-badge">Vendor Account</span>
+      </div>
+    </div>
+
+    <div class="vp-card">
+      <div class="vp-card-hd">
+        <i class="bi bi-info-circle-fill"></i> Account Info
+      </div>
+      <div class="vp-card-bd" style="padding-top:6px;padding-bottom:6px;">
+
+        <div class="vp-info-row">
+          <div class="vp-icon-box"><i class="bi bi-person-fill"></i></div>
+          <div>
+            <div class="vp-info-label">Full Name</div>
+            <div class="vp-info-val">
+              {% if vendor_obj.first_name or vendor_obj.last_name %}
+                {{ vendor_obj.first_name }} {{ vendor_obj.last_name }}
+              {% else %}
+                {{ request.user.first_name }} {{ request.user.last_name }}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="vp-info-row">
+          <div class="vp-icon-box"><i class="bi bi-envelope-fill"></i></div>
+          <div>
+            <div class="vp-info-label">Email</div>
+            <div class="vp-info-val">{{ vendor_obj.email|default:request.user.email }}</div>
+          </div>
+        </div>
+
+        <div class="vp-info-row">
+          <div class="vp-icon-box"><i class="bi bi-shield-lock-fill"></i></div>
+          <div>
+            <div class="vp-info-label">Role</div>
+            <div class="vp-info-val">Vendor</div>
+          </div>
+        </div>
+
+        <div class="vp-info-row">
+          <div class="vp-icon-box"><i class="bi bi-calendar-event-fill"></i></div>
+          <div>
+            <div class="vp-info-label">Joined</div>
+            <div class="vp-info-val">
+              {% if vendor_obj.date_joined %}
+                {{ vendor_obj.date_joined|date:"d M Y" }}
+              {% else %}
+                {{ request.user.date_joined|date:"d M Y"|default:"—" }}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="vp-info-row">
+          <div class="vp-icon-box"><i class="bi bi-clock-fill"></i></div>
+          <div>
+            <div class="vp-info-label">Last Login</div>
+            <div class="vp-info-val">{{ request.user.last_login|date:"d M Y, H:i"|default:"Just now" }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><div>
+
+    <div class="vp-card">
+      <div class="vp-card-hd"><i class="bi bi-person-fill"></i> Personal Information</div>
+      <div class="vp-card-bd">
+        <div class="vp-row-2">
+          <div>
+            <label class="vp-label">First Name</label>
+            <input type="text" name="first_name" class="vp-input" placeholder="First Name" value="{{ vendor_obj.first_name|default:request.user.first_name }}">
+          </div>
+          <div>
+            <label class="vp-label">Last Name</label>
+            <input type="text" name="last_name" class="vp-input" placeholder="Last Name" value="{{ vendor_obj.last_name|default:request.user.last_name }}">
+          </div>
+        </div>
+        <div class="vp-row-1">
+          <label class="vp-label">Email Address</label>
+          <div class="vp-input-group">
+            <span class="vp-input-group-text"><i class="bi bi-envelope"></i></span>
+            <input type="email" class="vp-input" value="{{ vendor_obj.email|default:request.user.email }}" readonly>
+          </div>
+          <div class="vp-hint">Email cannot be changed. Contact support if needed.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vp-card">
+      <div class="vp-card-hd"><i class="bi bi-image-fill"></i> Profile Photo</div>
+      <div class="vp-card-bd">
+        <div class="vp-upload" onclick="document.getElementById('vpFileInput').click();">
+          <i class="bi bi-cloud-arrow-up-fill"></i>
+          <div class="vp-upload-title">Click to upload a new photo</div>
+          <div class="vp-upload-hint">JPG, PNG or WEBP — max 5MB</div>
+        </div>
+        <div class="vp-file-chosen" id="vpFileChosen">
+          <i class="bi bi-check-circle-fill"></i>
+          <span id="vpFileName"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="vp-card">
+      <div class="vp-card-hd"><i class="bi bi-key-fill"></i> Security Settings</div>
+      <div class="vp-card-bd">
+        <div class="vp-row-1">
+          <label class="vp-label">New Password</label>
+          <input type="password" name="password" class="vp-input" id="vpPassInput" oninput="vpStrength(this.value)" placeholder="Leave blank to keep current password">
+          <div class="vp-strength-bar"><div class="vp-strength-fill" id="vpStrFill"></div></div>
+          <div class="vp-strength-txt" id="vpStrTxt"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;">
+      <button type="submit" class="vp-btn-save">
+        <i class="bi bi-check2-circle" style="margin-right:6px;"></i>Save Changes
+      </button>
+    </div>
+
+  </div></div></form>
+</div><script>
+function vpPreview(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const el = document.getElementById('vpAvatar');
+    if (el.tagName === 'DIV') {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.className = 'vp-avatar-img';
+      img.id = 'vpAvatar';
+      el.replaceWith(img);
+    } else {
+      el.src = e.target.result;
+    }
+  };
+  reader.readAsDataURL(input.files[0]);
+  document.getElementById('vpFileName').textContent = input.files[0].name;
+  document.getElementById('vpFileChosen').style.display = 'flex';
+}
+
+function vpStrength(val) {
+  const fill = document.getElementById('vpStrFill');
+  const txt  = document.getElementById('vpStrTxt');
+  if (!val) { fill.style.width = '0%'; txt.textContent = ''; return; }
+  let s = 0;
+  if (val.length >= 8)           s++;
+  if (/[A-Z]/.test(val))        s++;
+  if (/[0-9]/.test(val))        s++;
+  if (/[^A-Za-z0-9]/.test(val)) s++;
+  const lv = [
+    {w:'25%', c:'#ef4444', l:'Weak'},
+    {w:'50%', c:'#f97316', l:'Fair'},
+    {w:'75%', c:'#eab308', l:'Good'},
+    {w:'100%',c:'#22c55e', l:'Strong'},
+  ][s - 1] || {w:'25%', c:'#ef4444', l:'Weak'};
+  fill.style.width      = lv.w;
+  fill.style.background = lv.c;
+  txt.textContent       = lv.l;
+  txt.style.color       = lv.c;
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,378 @@
+{% extends "dashboard.html" %}
+
+{% block title %}{% if business %}Edit Business{% else %}Add Business{% endif %}{% endblock %}
+{% block title_header %}{% if business %}Edit Business{% else %}Add Business{% endif %}{% endblock %}
+
+{% block content %}
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="mb-0 fw-bold" style="color: #b01f2c;">{% if business %}Edit: {{ business.company_name }}{% else %}New Business{% endif %}</h5>
+        <a href="{% url 'businesses:list' %}" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        Please fix the errors below.
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" id="business-form">
+        {% csrf_token %}
+
+        <div class="row g-3">
+
+            <!-- Company Name -->
+            <div class="col-md-6">
+                <label class="form-label fw-medium" style="color: #243d7f;">Company Name <span class="text-danger">*</span></label>
+                <input type="text" name="company_name"
+                       value="{{ form.company_name.value|default:'' }}"
+                       class="form-control {% if form.company_name.errors %}is-invalid{% endif %}"
+                       placeholder="e.g. Acme Pvt Ltd" required>
+                {% for error in form.company_name.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Category -->
+            <div class="col-md-6">
+                <label class="form-label fw-medium" style="color: #243d7f;">Category</label>
+                <select name="category" class="form-select {% if form.category.errors %}is-invalid{% endif %}">
+                    <option value="">— Select category —</option>
+                    {% for cat in form.fields.category.queryset %}
+                        <option value="{{ cat.id }}" {% if form.category.value|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% for error in form.category.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Location -->
+            <div class="col-md-6">
+                <label class="form-label fw-medium" style="color: #243d7f;">Location <span class="text-danger">*</span></label>
+                <input type="text" name="location"
+                       value="{{ form.location.value|default:'' }}"
+                       class="form-control {% if form.location.errors %}is-invalid{% endif %}"
+                       placeholder="e.g. Hyderabad, Telangana" required>
+                {% for error in form.location.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Address -->
+            <div class="col-md-6">
+                <label class="form-label fw-medium" style="color: #243d7f;">Address</label>
+                <input type="text" name="address"
+                       value="{{ form.address.value|default:'' }}"
+                       class="form-control {% if form.address.errors %}is-invalid{% endif %}"
+                       placeholder="e.g. Near Metro Station, Ameerpet Main Road">
+                {% for error in form.address.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Email -->
+            <div class="col-md-6">
+                <label class="form-label fw-medium" style="color: #243d7f;">Email <span class="text-danger">*</span></label>
+                <input type="email" name="email"
+                       value="{{ form.email.value|default:'' }}"
+                       class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                       placeholder="contact@company.com" required>
+                {% for error in form.email.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Phone -->
+            <div class="col-md-6">
+                <label class="form-label fw-medium" style="color: #243d7f;">Phone <span class="text-danger">*</span></label>
+                <input type="text" name="phone"
+                       value="{{ form.phone.value|default:'' }}"
+                       class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
+                       placeholder="+91 9876543210" required>
+                {% for error in form.phone.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- WhatsApp -->
+            <div class="col-md-6">
+                <label class="form-label fw-medium" style="color: #243d7f;">WhatsApp</label>
+                <input type="text" name="whatsapp"
+                       value="{{ form.whatsapp.value|default:'' }}"
+                       class="form-control {% if form.whatsapp.errors %}is-invalid{% endif %}"
+                       placeholder="+91 9876543210">
+                {% for error in form.whatsapp.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Website -->
+            <div class="col-md-6">
+                <label class="form-label fw-medium" style="color: #243d7f;">Website Url</label>
+                <input type="url" name="website"
+                       value="{{ form.website.value|default:'' }}"
+                       class="form-control {% if form.website.errors %}is-invalid{% endif %}"
+                       placeholder="https://www.example.com">
+                {% for error in form.website.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+         
+
+            <!-- Description -->
+            <div class="col-12">
+                <label class="form-label fw-medium" style="color: #243d7f;">Description</label>
+                <textarea name="description" rows="3"
+                          class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                          placeholder="Brief description about the business...">{{ form.description.value|default:'' }}</textarea>
+                {% for error in form.description.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Dynamic Category Fields -->
+            <div class="col-12" id="dynamic-fields-wrapper" style="display:none;">
+                <hr class="my-2">
+                <h6 class="fw-semibold mb-3">
+                    Additional Details
+                    <span class="text-muted fw-normal small" id="dynamic-fields-category-name"></span>
+                </h6>
+                <div class="row g-3" id="dynamic-fields-container"></div>
+            </div>
+
+            <!-- Images -->
+            <div class="col-12">
+                <label class="form-label fw-medium" style="color: #243d7f;">Images <span class="text-muted fw-normal small">(optional, multiple allowed)</span></label>
+
+                {% if business %}
+                    {% with images=business.images.all %}
+                        {% if images %}
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            {% for img in images %}
+                            <div class="position-relative">
+                                <img src="{{ img.image.url }}"
+                                     style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0;">
+                                <a href="{% url 'businesses:delete_image' img.pk %}"
+                                   onclick="return confirm('Remove this image?')"
+                                   style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#ef4444;color:white;font-size:11px;line-height:20px;text-align:center;text-decoration:none;display:block;">✕</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+
+                <div id="image-preview" class="d-flex flex-wrap gap-2 mb-2"></div>
+                <div id="upload-box"
+                     style="border:2px dashed #cbd5e1;border-radius:10px;padding:24px;text-align:center;cursor:pointer;background:#f8fafc;">
+                    <i class="bi bi-cloud-upload fs-3 text-muted d-block mb-1"></i>
+                    <div class="text-muted small">Click to add images</div>
+                </div>
+                <input type="file" name="images" id="images-input" accept="image/*" multiple style="display:none;">
+            </div>
+
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i>
+                {% if business %}Update{% else %}Create{% endif %} Business
+            </button>
+            <a href="{% url 'businesses:list' %}" class="btn btn-light">Cancel</a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ categories_with_fields|json_script:"categories-data" }}
+{{ existing_values|json_script:"existing-values-data" }}
+<script>
+    const uploadBox = document.getElementById('upload-box');
+    const input = document.getElementById('images-input');
+    const preview = document.getElementById('image-preview');
+    let allFiles = [];
+    uploadBox.addEventListener('click', () => input.click());
+    input.addEventListener('change', function () {
+        Array.from(this.files).forEach(file => {
+            allFiles.push(file);
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const div = document.createElement('div');
+                div.style.cssText = 'position:relative;display:inline-block;';
+                const idx = allFiles.length - 1;
+                div.innerHTML = `
+                    <img src="${e.target.result}"
+                         style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0;">
+                    <span onclick="removeFile(${idx}, this.parentElement)"
+                          style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#ef4444;color:white;font-size:11px;line-height:20px;text-align:center;cursor:pointer;display:block;">✕</span>
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+        this.value = '';
+        updateInput();
+    });
+
+    function removeFile(idx, el) {
+        allFiles[idx] = null;
+        el.remove();
+        updateInput();
+    }
+
+    function updateInput() {
+        const dt = new DataTransfer();
+        allFiles.forEach(f => { if (f) dt.items.add(f); });
+        input.files = dt.files;
+    }
+
+    const categoriesData = JSON.parse(document.getElementById('categories-data').textContent);
+    const existingValues = JSON.parse(document.getElementById('existing-values-data').textContent);
+    const categorySelect = document.querySelector('select[name="category"]');
+    const wrapper = document.getElementById('dynamic-fields-wrapper');
+    const container = document.getElementById('dynamic-fields-container');
+    const categoryLabel = document.getElementById('dynamic-fields-category-name');
+
+    // Handles "Select All" clicks and keeps it in sync with individual checkboxes.
+    // Bound once on the container since innerHTML gets rebuilt on every category change.
+    container.addEventListener('change', function (e) {
+        const fieldId = e.target.dataset.fieldId;
+        if (!fieldId) return;
+        const group = e.target.closest('.checkbox-group');
+        if (!group) return;
+        const checkboxes = group.querySelectorAll('.field-checkbox');
+        const selectAll = group.querySelector('.select-all-checkbox');
+
+        if (e.target.classList.contains('select-all-checkbox')) {
+            checkboxes.forEach(cb => { cb.checked = e.target.checked; });
+        } else if (e.target.classList.contains('field-checkbox')) {
+            const states = Array.from(checkboxes).map(cb => cb.checked);
+            const allChecked = states.every(Boolean);
+            const someChecked = states.some(Boolean);
+            selectAll.checked = allChecked;
+            selectAll.indeterminate = someChecked && !allChecked;
+        }
+    });
+
+    function renderFields(categoryId) {
+        container.innerHTML = '';
+        const fields = categoriesData[parseInt(categoryId)];
+        if (!fields || fields.length === 0) {
+            wrapper.style.display = 'none';
+            return;
+        }
+        wrapper.style.display = 'block';
+        categoryLabel.textContent = '(' + categorySelect.options[categorySelect.selectedIndex].text + ')';
+
+        fields.forEach(field => {
+            const col = document.createElement('div');
+            const existing = existingValues[field.id] !== undefined ? existingValues[field.id] : '';
+            const required = field.is_required ? 'required' : '';
+            const requiredStar = field.is_required ? '<span class="text-danger">*</span>' : '';
+
+            if (field.field_type === 'textarea') {
+                col.className = 'col-12';
+                col.innerHTML = `
+                    <label class="form-label fw-medium">${field.label} ${requiredStar}</label>
+                    <textarea name="field_${field.id}" class="form-control" rows="3"
+                              ${required}>${existing || ''}</textarea>`;
+
+            } else if (field.field_type === 'checkbox') {
+                col.className = 'col-12';
+                const options = field.options || [];
+                const existingArr = existing ? JSON.parse(existing) : [];
+                col.innerHTML = `
+                    <label class="form-label fw-medium">${field.label} ${requiredStar}</label>
+                    <div class="d-flex flex-wrap gap-3 checkbox-group" data-field-id="${field.id}">
+                        <div class="form-check">
+                            <input class="form-check-input select-all-checkbox" type="checkbox" data-field-id="${field.id}">
+                            <label class="form-check-label fw-semibold">Select All</label>
+                        </div>
+                        ${options.map(opt => `
+                            <div class="form-check">
+                                <input class="form-check-input field-checkbox" type="checkbox"
+                                       name="field_${field.id}" value="${opt}" data-field-id="${field.id}"
+                                       ${existingArr.includes(opt) ? 'checked' : ''}>
+                                <label class="form-check-label">${opt}</label>
+                            </div>`).join('')}
+                    </div>`;
+
+            } else if (field.field_type === 'radio') {
+                col.className = 'col-md-6';
+                const options = field.options || [];
+                col.innerHTML = `
+                    <label class="form-label fw-medium">${field.label} ${requiredStar}</label>
+                    <div class="d-flex flex-wrap gap-3">
+                        ${options.map(opt => `
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="field_${field.id}" value="${opt}"
+                                       ${existing === opt ? 'checked' : ''}>
+                                <label class="form-check-label">${opt}</label>
+                            </div>`).join('')}
+                    </div>`;
+
+            } else if (field.field_type === 'select') {
+                col.className = 'col-md-6';
+                const options = field.options || [];
+                col.innerHTML = `
+                    <label class="form-label fw-medium">${field.label} ${requiredStar}</label>
+                    <select name="field_${field.id}" class="form-select" ${required}>
+                        <option value="">— Select —</option>
+                        ${options.map(opt => `
+                            <option value="${opt}" ${existing === opt ? 'selected' : ''}>${opt}</option>
+                        `).join('')}
+                    </select>`;
+
+            } else if (field.field_type === 'range') {
+                col.className = 'col-md-6';
+                col.innerHTML = `
+                    <label class="form-label fw-medium">${field.label} ${requiredStar}</label>
+                    <input type="range" name="field_${field.id}" class="form-range"
+                           value="${existing || 0}" ${required}
+                           oninput="this.nextElementSibling.textContent = this.value">
+                    <span class="text-muted small">${existing || 0}</span>`;
+
+            } else {
+                col.className = 'col-md-6';
+                const inputType = field.field_type === 'number' ? 'number' : 'text';
+                col.innerHTML = `
+                    <label class="form-label fw-medium">${field.label} ${requiredStar}</label>
+                    <input type="${inputType}" name="field_${field.id}"
+                           class="form-control" value="${existing || ''}"
+                           ${required}>`;
+            }
+
+            container.appendChild(col);
+        });
+
+        // Set initial "Select All" state for every checkbox group
+        container.querySelectorAll('.checkbox-group').forEach(group => {
+            const checkboxes = group.querySelectorAll('.field-checkbox');
+            const selectAll = group.querySelector('.select-all-checkbox');
+            if (!selectAll || checkboxes.length === 0) return;
+            const states = Array.from(checkboxes).map(cb => cb.checked);
+            const allChecked = states.every(Boolean);
+            const someChecked = states.some(Boolean);
+            selectAll.checked = allChecked;
+            selectAll.indeterminate = someChecked && !allChecked;
+        });
+    }
+
+    categorySelect.addEventListener('change', function () {
+        renderFields(this.value);
+    });
+
+    if (categorySelect.value) {
+        renderFields(categorySelect.value);
+    }
+</script>
+{% endblock %}

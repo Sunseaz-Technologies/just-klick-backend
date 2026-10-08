@@ -1,0 +1,394 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Login - JustKlik</title>
+  <link rel="stylesheet" href="{% static 'assets/css/accounts/auth_student.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/accounts/auth_shared.css' %}">
+</head>
+<body>
+
+<div class="auth-split">
+
+  <!-- LEFT BRANDING PANEL -->
+  <aside class="auth-panel">
+    <div class="panel-top">
+      <div class="panel-logo">
+        JustKlik <span class="panel-logo-dot"></span>
+      </div>
+      <h2 class="panel-headline">The smarter way to connect students &amp; services.</h2>
+      <p class="panel-subtext">exclusive deals, and campus resources — all in one place.</p>
+
+      <div class="panel-features">
+        <div class="panel-feature">
+          <div class="panel-feature-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <span class="panel-feature-text">Secure OTP login</span>
+        </div>
+        <div class="panel-feature">
+          <div class="panel-feature-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <span class="panel-feature-text">Instant access</span>
+        </div>
+        <div class="panel-feature">
+          <div class="panel-feature-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <span class="panel-feature-text">Student community</span>
+        </div>
+        <div class="panel-feature">
+          <div class="panel-feature-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+          </div>
+          <span class="panel-feature-text">Exclusive deals</span>
+        </div>
+      </div>
+    </div>
+    <div class="panel-bottom">
+      <p class="panel-tagline">© 2025 JustKlik. All rights reserved.</p>
+    </div>
+  </aside>
+
+  <!-- RIGHT FORM PANEL -->
+  <main class="auth-form-side">
+
+    <div class="brand-header">
+      <h2>JustKlik</h2>
+    </div>
+
+    <h1 class="title">Welcome back</h1>
+    <p class="subtitle">Login with OTP or Google</p>
+
+    <!-- Error Alert Banner -->
+    <div class="info-alert-banner" id="backendErrorBanner" style="display: none; background: var(--error-soft); border-color: var(--error-border); color: var(--error);">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0;color:var(--error)">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+      <span id="backendErrorMsg"></span>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 20px;">
+      <label class="form-label">Mobile Number or Email</label>
+
+      <div class="phone-input-row">
+        <div class="form-field" style="flex:1;margin-bottom:0;">
+          <div class="input-container">
+            <input
+              type="text"
+              id="username"
+              class="form-input"
+              placeholder="Enter mobile number or email"
+            >
+            <span class="input-icon">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm6 0a10 10 0 11-20 0 10 10 0 0120 0z"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <button class="inline-action-btn" id="btnSendOtp" onclick="sendOTP()">
+          Send Code
+        </button>
+      </div>
+    </div>
+
+    <!-- Inline OTP Verification Block -->
+    <div class="otp-wrapper" id="otpWrapper">
+      <label class="form-label" style="margin-bottom: 12px; text-align: center;">Enter verification code</label>
+
+      <div class="otp-inputs-wrapper" id="grpOtpInputs" role="group" aria-label="One-time password fields">
+        <input type="tel" maxlength="1" class="otp-digit-field otp" inputmode="numeric" pattern="[0-9]">
+        <input type="tel" maxlength="1" class="otp-digit-field otp" inputmode="numeric" pattern="[0-9]">
+        <input type="tel" maxlength="1" class="otp-digit-field otp" inputmode="numeric" pattern="[0-9]">
+        <input type="tel" maxlength="1" class="otp-digit-field otp" inputmode="numeric" pattern="[0-9]">
+        <input type="tel" maxlength="1" class="otp-digit-field otp" inputmode="numeric" pattern="[0-9]">
+        <input type="tel" maxlength="1" class="otp-digit-field otp" inputmode="numeric" pattern="[0-9]">
+      </div>
+
+      <div class="status-countdown-area">
+        <div class="countdown-timer-text">
+          <div class="live-status-pulse" id="uiTimerPulseDot"></div>
+          <span id="lblTimerFeedback">Expires in</span>
+          <span class="timer-countdown-value" id="countdown">30s</span>
+        </div>
+        <div class="resend btn-inline-resend" id="resend" onclick="resendOTP()">
+          Resend OTP
+        </div>
+      </div>
+
+      <button class="btn-submit-primary" id="btnLoginSubmit" onclick="verifyOTP()">
+        Login
+      </button>
+    </div>
+
+    <div class="form-divider">
+      <span>or</span>
+    </div>
+
+    <div class="oauth-btn-wrapper" style="margin-top: 8px;">
+      <div id="googleBtnWrapper"></div>
+    </div>
+
+    <div class="bottom">
+      Don't have an account?
+      <a href="/api/student-register">Register</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let timer;
+let remainingSeconds = 30;
+
+const nodes = {
+  username: document.getElementById("username"),
+  sendOtpBtn: document.getElementById("btnSendOtp"),
+  otpWrapper: document.getElementById("otpWrapper"),
+  otpInputs: document.querySelectorAll(".otp"),
+  countdown: document.getElementById("countdown"),
+  timerPulse: document.getElementById("uiTimerPulseDot"),
+  timerLabel: document.getElementById("lblTimerFeedback"),
+  resendBtn: document.getElementById("resend"),
+  loginSubmitBtn: document.getElementById("btnLoginSubmit"),
+  backendErrorBanner: document.getElementById("backendErrorBanner"),
+  backendErrorMsg: document.getElementById("backendErrorMsg")
+};
+
+function showBackendError(msg, isHtml = false) {
+  if (isHtml) {
+    nodes.backendErrorMsg.innerHTML = msg;
+  } else {
+    nodes.backendErrorMsg.textContent = msg;
+  }
+  nodes.backendErrorBanner.style.display = 'flex';
+  nodes.backendErrorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function hideBackendError() {
+  nodes.backendErrorBanner.style.display = 'none';
+}
+
+function bindOtpFieldsEngine() {
+  nodes.otpInputs.forEach((inputElement, index) => {
+    inputElement.addEventListener('input', (event) => {
+      const processedValue = event.target.value.replace(/\D/g, '');
+      inputElement.value = processedValue ? processedValue[processedValue.length - 1] : '';
+      inputElement.classList.toggle('is-filled', !!inputElement.value);
+      inputElement.classList.remove('has-error');
+      if (processedValue && index < nodes.otpInputs.length - 1) {
+        nodes.otpInputs[index + 1].focus();
+      }
+    });
+
+    inputElement.addEventListener('keydown', (event) => {
+      if (event.key === 'Backspace' && !inputElement.value && index > 0) {
+        const previousElement = nodes.otpInputs[index - 1];
+        previousElement.focus();
+        previousElement.value = '';
+        previousElement.classList.remove('is-filled');
+      }
+      if (event.key === 'ArrowLeft' && index > 0) nodes.otpInputs[index - 1].focus();
+      if (event.key === 'ArrowRight' && index < nodes.otpInputs.length - 1) nodes.otpInputs[index + 1].focus();
+    });
+
+    inputElement.addEventListener('paste', (event) => {
+      event.preventDefault();
+      const pastedDigits = (event.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+      [...pastedDigits].forEach((char, targetIndex) => {
+        if (nodes.otpInputs[targetIndex]) {
+          nodes.otpInputs[targetIndex].value = char;
+          nodes.otpInputs[targetIndex].classList.add('is-filled');
+        }
+      });
+      if (pastedDigits.length > 0) {
+        const focusIndex = Math.min(pastedDigits.length, nodes.otpInputs.length - 1);
+        nodes.otpInputs[focusIndex].focus();
+      }
+    });
+  });
+}
+
+// ─── FIX: shared success/error handlers + disabled guard ───────────────────
+function sendOTP() {
+  if (nodes.sendOtpBtn.disabled) return;  // block double-clicks
+
+  hideBackendError();
+
+  const username = nodes.username.value.trim();
+
+  if (!username) {
+    showBackendError("Please enter mobile number or email.");
+    return;
+  }
+
+  // Disable button immediately so rapid clicks can't fire multiple requests
+  nodes.sendOtpBtn.disabled = true;
+  nodes.sendOtpBtn.innerText = 'Sending…';
+
+  const onSuccess = () => {
+    nodes.sendOtpBtn.innerText = 'Sent ✓';
+    nodes.otpWrapper.style.display = 'flex';
+    startTimer();
+  };
+
+  const onError = (msg) => {
+    nodes.sendOtpBtn.disabled = false;
+    nodes.sendOtpBtn.innerText = 'Send Code';
+    showBackendError(msg);
+  };
+
+  if (username.includes('@')) {
+    fetch('/api/send-email-login-otp?email=' + encodeURIComponent(username), { method: 'POST' })
+      .then(res => res.json())
+      .then(data => data.success ? onSuccess() : onError(data.message))
+      .catch(() => onError('Network error. Please try again.'));
+  } else {
+    fetch('/api/login/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: username })
+    })
+      .then(res => res.json())
+      .then(data => data.success ? onSuccess() : onError(data.message))
+      .catch(() => onError('Network error. Please try again.'));
+  }
+}
+
+// ─── FIX: was referencing nodes.phone which doesn't exist ──────────────────
+function resendOTP() {
+  nodes.username.disabled = false;
+  nodes.sendOtpBtn.disabled = false;
+  nodes.sendOtpBtn.innerText = 'Send Code';
+  nodes.otpInputs.forEach(box => {
+    box.value = '';
+    box.classList.remove('is-filled', 'has-error');
+  });
+  sendOTP();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  remainingSeconds = 30;
+
+  nodes.timerPulse.classList.remove('is-inactive');
+  nodes.timerLabel.textContent = 'Expires in';
+  nodes.countdown.innerText = `${remainingSeconds}s`;
+  nodes.resendBtn.classList.remove('is-visible');
+
+  timer = setInterval(() => {
+    remainingSeconds--;
+    nodes.countdown.innerText = `${remainingSeconds}s`;
+
+    if (remainingSeconds <= 0) {
+      clearInterval(timer);
+      nodes.countdown.innerText = '0s';
+      nodes.timerPulse.classList.add('is-inactive');
+      nodes.timerLabel.textContent = 'Code expired';
+      nodes.resendBtn.classList.add('is-visible');
+    }
+  }, 1000);
+}
+
+function verifyOTP() {
+  hideBackendError();
+
+  let otp = '';
+  nodes.otpInputs.forEach(box => otp += box.value);
+
+  const username = nodes.username.value.trim();
+
+  let url = '/api/student-login?otp=' + encodeURIComponent(otp);
+
+  if (username.includes('@')) {
+    url += '&email=' + encodeURIComponent(username);
+  } else {
+    url += '&phone=' + encodeURIComponent(username);
+  }
+
+  fetch(url, { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
+        const dest = data.onboarding_complete ? '/api/student-login-redirect' : '/api/student-onboarding-form';
+        window.location.href = dest;
+      } else {
+        showBackendError(data.message);
+      }
+    })
+    .catch(() => showBackendError('Network error. Please try again.'));
+}
+
+function initGoogleIdentityFramework() {
+  if (typeof google === 'undefined' || !google.accounts) {
+    setTimeout(initGoogleIdentityFramework, 200);
+    return;
+  }
+
+  try {
+    google.accounts.id.initialize({
+      client_id: "{{ google_client_id }}",
+      callback: handleCredentialResponse,
+      context: 'signin'
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById('googleBtnWrapper'),
+      {
+        theme: 'outline',
+        size: 'large',
+        width: '380',
+        text: 'signin_with',
+        shape: 'rectangular'
+      }
+    );
+  } catch (err) {
+    console.error('Google Identity Services Initialization Failure:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initGoogleIdentityFramework();
+  bindOtpFieldsEngine();
+});
+
+function handleCredentialResponse(response) {
+  fetch('/api/google-auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id_token: response.credential })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
+        const dest = data.onboarding_complete ? '/api/student-login-redirect' : '/api/student-onboarding-form';
+        window.location.href = dest;
+      } else if (data.status === 'not_registered') {
+        showBackendError(
+          'No account found for this Google email. <a href="/api/student-register" style="color:inherit;font-weight:600;text-decoration:underline;">Register here</a>',
+          true
+        );
+      } else {
+        showBackendError('Authentication failed: ' + data.message);
+      }
+    })
+    .catch(err => {
+      console.error('Google authentication error:', err);
+      showBackendError('Network error. Please try again.');
+    });
+}
+</script>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+</body>
+</html>

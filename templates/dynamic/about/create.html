@@ -1,0 +1,526 @@
+{% extends "dashboard.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+  :root {
+    --primary : #2b51c0;
+    --primary-l: #fdecea;
+    --bg      : #f4f6f9;
+    --card    : #ffffff;
+    --border  : #e2e6ed;
+    --text    : #1a1a2e;
+    --muted   : #6b7280;
+    --radius  : 10px;
+  }
+
+  body { background: var(--bg); }
+
+  /* ── page bar ── */
+  .pg-bar {
+    background: var(--card);
+    border-bottom: 3px solid var(--primary);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 26px;
+  }
+  .pg-bar h4 { margin: 0; font-weight: 700; color: var(--text); font-size: 1.05rem; }
+
+  /* ── two column grid ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    padding: 0 24px 24px;
+  }
+  .col-stack { display: flex; flex-direction: column; gap: 20px; }
+
+  /* ── panel ── */
+  .panel {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    overflow: hidden;
+  }
+  .panel-head {
+    background: var(--primary);
+    color: #fff;
+    padding: 11px 18px;
+    font-weight: 600;
+    font-size: .84rem;
+    letter-spacing: .04em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-body { padding: 18px 20px; }
+
+  /* ── form controls ── */
+  .f-label {
+    font-weight: 600;
+    font-size: .81rem;
+    color: #444;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .f-control {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: .88rem;
+    padding: 8px 12px;
+    transition: border-color .2s, box-shadow .2s;
+    background: #fff;
+    color: var(--text);
+    box-sizing: border-box;
+  }
+  .f-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(192,57,43,.12);
+    outline: none;
+  }
+  textarea.f-control { resize: vertical; }
+
+  .f-group { margin-bottom: 14px; }
+  .f-group:last-child { margin-bottom: 0; }
+
+  .f-error { color: var(--primary); font-size: .78rem; margin-top: 3px; }
+
+  /* active toggle */
+  .toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0 2px;
+  }
+  .toggle-wrap input[type="checkbox"] {
+    width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;
+  }
+  .toggle-wrap label { font-size: .85rem; font-weight: 600; color: #444; cursor: pointer; margin: 0; }
+
+  /* ── repeatable rows ── */
+  .rep-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2px; }
+
+  .rep-row {
+    background: #fafbfc;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 14px 10px;
+  }
+  .rep-num {
+    font-size: .68rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* ── counter preview strip ── */
+  .ctr-preview {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+   background: #ADD8E6; /* Light Blue */
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    min-height: 52px;
+    align-items: center;
+  }
+  .cp-item .cp-num {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .cp-item .cp-lbl {
+    font-size: .6rem;
+    letter-spacing: .1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .cp-empty { color: var(--muted); font-size: .82rem; }
+
+  /* ── add / remove ── */
+  .btn-add-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary-l);
+    color: var(--primary);
+    border: 1.5px dashed var(--primary);
+    border-radius: 7px;
+    padding: 7px 16px;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background .15s;
+  }
+  .btn-add-row:hover { background: #fbd3d0; }
+
+  .btn-rm-row {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: .77rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0;
+    margin-top: 6px;
+  }
+  .btn-rm-row:hover { opacity: .7; }
+
+  /* ── sticky save bar ── */
+  .save-bar {
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 13px 28px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    bottom: 0;
+    z-index: 30;
+  }
+  .btn-save {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 10px 28px;
+    font-weight: 700;
+    font-size: .9rem;
+    cursor: pointer;
+  }
+  .btn-save:hover { background: #082b68; }
+  .btn-back {
+    background: #ebebeb;
+    color: #555;
+    border: none;
+    border-radius: 7px;
+    padding: 10px 18px;
+    font-size: .9rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="pg-bar">
+  <h4><i class="bi bi-layout-text-window-reverse me-2"></i>{{ page_title }}</h4>
+  <a href="{% url 'dynamic:who_we_are_list' %}" class="btn-back">
+    <i class="bi bi-arrow-left"></i> Back
+  </a>
+</div>
+
+{% if messages %}
+  <div class="px-4 mb-3">
+    {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags }} alert-dismissible fade show py-2">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post" id="aboutForm">
+  {% csrf_token %}
+
+  <div class="two-col">
+
+    <div class="col-stack">
+
+      <div class="panel">
+        <div class="panel-head"><i class="bi bi-person-circle"></i> WHO WE ARE — Hero Section</div>
+        <div class="panel-body">
+          <div class="f-group">
+            <label class="f-label">Section Badge Label</label>
+            <input type="text" name="who_we_are_badge" class="f-control" value="{{ data.who_we_are_badge|default:'WHO WE ARE' }}">
+          </div>
+          <div class="f-group">
+            <label class="f-label">Hero Title <span style="color:var(--primary)">*</span></label>
+            <input type="text" name="hero_title" class="f-control {% if errors.hero_title %}is-invalid{% endif %}" value="{{ data.hero_title|default:'' }}">
+            {% if errors.hero_title %}<div class="f-error">{{ errors.hero_title }}</div>{% endif %}
+          </div>
+          <div class="f-group">
+            <label class="f-label">Hero Description</label>
+            <textarea name="hero_description" class="f-control" rows="3">{{ data.hero_description|default:'' }}</textarea>
+          </div>
+          <div class="toggle-wrap">
+            <input type="checkbox" name="is_active" id="is_active" {% if data.is_active %}checked{% endif %}>
+            <label for="is_active">Active / Published</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><i class="bi bi-flag"></i> Our Mission Block</div>
+        <div class="panel-body">
+          <div class="f-group">
+            <label class="f-label">Mission Icon</label>
+            <input type="text" name="mission_icon" class="f-control" value="{{ data.mission_icon|default:'bi bi-flag' }}">
+          </div>
+          <div class="f-group">
+            <label class="f-label">Mission Title</label>
+            <input type="text" name="mission_title" class="f-control" value="{{ data.mission_title|default:'Our mission' }}">
+          </div>
+          <div class="f-group">
+            <label class="f-label">Mission Description</label>
+            <textarea name="mission_description" class="f-control" rows="3">{{ data.mission_description|default:'' }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><i class="bi bi-bar-chart-line"></i> Stats / Counters</div>
+        <div class="panel-body">
+          <div class="ctr-preview" id="ctrPreview">
+            <span class="cp-empty">Add counters below to preview</span>
+          </div>
+          <div class="rep-list" id="counterList"></div>
+          <button type="button" class="btn-add-row" data-action="add-counter">
+            <i class="bi bi-plus-circle"></i> Add Counter
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><i class="bi bi-grid-3x3-gap"></i> Popular Services</div>
+        <div class="panel-body">
+          <div class="f-group">
+            <label class="f-label">Section Heading</label>
+            <input type="text" name="popular_services_title" class="f-control" value="{{ data.popular_services_title|default:'Popular services on JustKlick' }}">
+          </div>
+          <div class="f-group">
+            <label class="f-label">Sub-heading / Note</label>
+            <input type="text" name="popular_services_sub" class="f-control" value="{{ data.popular_services_sub|default:'' }}">
+          </div>
+          <label class="f-label mt-1">Service Items</label>
+          <div class="rep-list" id="serviceList"></div>
+          <button type="button" class="btn-add-row" data-action="add-service">
+            <i class="bi bi-plus-circle"></i> Add Service
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-stack">
+      <div class="panel">
+        <div class="panel-head"><i class="bi bi-stars"></i> OUR VALUES — Section Info</div>
+        <div class="panel-body">
+          <div class="f-group">
+            <label class="f-label">Section Badge Label</label>
+            <input type="text" name="our_values_badge" class="f-control" value="{{ data.our_values_badge|default:'OUR VALUES' }}">
+          </div>
+          <div class="f-group">
+            <label class="f-label">Values Title *</label>
+            <input type="text" name="values_title" class="f-control {% if errors.values_title %}is-invalid{% endif %}" value="{{ data.values_title|default:'' }}">
+            {% if errors.values_title %}<div class="f-error">{{ errors.values_title }}</div>{% endif %}
+          </div>
+          <div class="f-group">
+            <label class="f-label">Values Description</label>
+            <textarea name="values_description" class="f-control" rows="3">{{ data.values_description|default:'' }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="flex:1;">
+        <div class="panel-head"><i class="bi bi-patch-check"></i> Value Items</div>
+        <div class="panel-body">
+          <div class="rep-list" id="valueList"></div>
+          <button type="button" class="btn-add-row" data-action="add-value">
+            <i class="bi bi-plus-circle"></i> Add Value Item
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="save-bar">
+    <a href="{% url 'dynamic:who_we_are_list' %}" class="btn-back">Cancel</a>
+    <button type="submit" class="btn-save">Save Section</button>
+  </div>
+</form>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+(function () {
+  "use strict";
+
+  var ctrIdx = 0, svcIdx = 0, valIdx = 0;
+
+  function esc(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // 1. Core Element Builders
+  function addCounter(prefill) {
+    var list = document.getElementById("counterList");
+    if (!list) return; // Fail-safe check
+    
+    var i = ctrIdx++;
+    var count = prefill ? prefill.count : "";
+    var label = prefill ? prefill.label : "";
+    var html =
+      '<div class="rep-row" id="ctr-' + i + '">' +
+        '<div class="rep-num">Counter #' + (i + 1) + '</div>' +
+        '<div style="display:grid;grid-template-columns:100px 1fr;gap:10px;">' +
+          '<div>' +
+            '<label class="f-label">Value</label>' +
+            '<input type="text" name="counter_count[]" class="f-control ctr-v" value="' + esc(count) + '" placeholder="100+" maxlength="20">' +
+          '</div>' +
+          '<div>' +
+            '<label class="f-label">Label</label>' +
+            '<input type="text" name="counter_label[]" class="f-control ctr-l" value="' + esc(label) + '" placeholder="VERIFIED PARTNERS">' +
+          '</div>' +
+        '</div>' +
+        '<button type="button" class="btn-rm-row onclick-remove"><i class="bi bi-trash3"></i> Remove</button>' +
+      '</div>';
+    list.insertAdjacentHTML("beforeend", html);
+    refreshPreview();
+  }
+
+  function refreshPreview() {
+    var vals = Array.prototype.map.call(document.querySelectorAll(".ctr-v"), function (el) { return el.value.trim(); });
+    var lbls = Array.prototype.map.call(document.querySelectorAll(".ctr-l"), function (el) { return el.value.trim(); });
+    var html = "";
+    vals.forEach(function (v, i) {
+      if (v || lbls[i]) {
+        html += '<div class="cp-item"><div class="cp-num">' + (esc(v) || "—") + '</div><div class="cp-lbl">' + (esc(lbls[i]) || "LABEL") + '</div></div>';
+      }
+    });
+    var preview = document.getElementById("ctrPreview");
+    if (preview) preview.innerHTML = html || '<span class="cp-empty">Add counters below to preview</span>';
+  }
+
+  function addService(prefill) {
+    var list = document.getElementById("serviceList");
+    if (!list) return; // Fail-safe check
+
+    var i = svcIdx++;
+    var val = typeof prefill === 'string' ? prefill : (prefill && prefill.name ? prefill.name : "");
+    var html =
+      '<div class="rep-row" id="svc-' + i + '">' +
+        '<div class="rep-num">Service #' + (i + 1) + '</div>' +
+        '<input type="text" name="service_name[]" class="f-control" value="' + esc(val) + '" placeholder="e.g. Overseas, Hostels">' +
+        '<button type="button" class="btn-rm-row onclick-remove"><i class="bi bi-trash3"></i> Remove</button>' +
+      '</div>';
+    list.insertAdjacentHTML("beforeend", html);
+  }
+
+  function addValueItem(prefill) {
+    var list = document.getElementById("valueList");
+    if (!list) return; // Fail-safe check
+
+    var i = valIdx++;
+    var icon = prefill ? prefill.icon : "bi bi-check-circle";
+    var ttl = prefill ? prefill.title : "";
+    var dsc = prefill ? prefill.description : "";
+    var html =
+      '<div class="rep-row" id="val-' + i + '">' +
+        '<div class="rep-num">Value Item #' + (i + 1) + '</div>' +
+        '<div class="f-group">' +
+          '<label class="f-label">Icon Class</label>' +
+          '<input type="text" name="value_icon[]" class="f-control" value="' + esc(icon) + '">' +
+        '</div>' +
+        '<div class="f-group">' +
+          '<label class="f-label">Title</label>' +
+          '<input type="text" name="value_title[]" class="f-control" value="' + esc(ttl) + '">' +
+        '</div>' +
+        '<div class="f-group">' +
+          '<label class="f-label">Description</label>' +
+          '<textarea name="value_description[]" class="f-control" rows="2">' + esc(dsc) + '</textarea>' +
+        '</div>' +
+        '<button type="button" class="btn-rm-row onclick-remove"><i class="bi bi-trash3"></i> Remove</button>' +
+      '</div>';
+    list.insertAdjacentHTML("beforeend", html);
+  }
+
+  // 2. Direct, explicit Event Listeners bound by CSS selector string matching
+  document.addEventListener("click", function(e) {
+    // Check if clicked element or its parent is our specific button type
+    var targetBtn = e.target.closest('.btn-add-row');
+    
+    if (targetBtn) {
+      e.preventDefault();
+      var action = targetBtn.getAttribute('data-action');
+      if (action === "add-counter") addCounter();
+      if (action === "add-service") addService();
+      if (action === "add-value") addValueItem();
+      return;
+    }
+
+    // Dynamic clean delegation for modern row removals
+    var removeBtn = e.target.closest('.onclick-remove');
+    if (removeBtn) {
+      e.preventDefault();
+      var row = removeBtn.closest(".rep-row");
+      if (row) { 
+        row.remove(); 
+        refreshPreview(); 
+      }
+    }
+  });
+
+  document.addEventListener("input", function(e) {
+    if (e.target.classList.contains("ctr-v") || e.target.classList.contains("ctr-l")) {
+      refreshPreview();
+    }
+  });
+
+  // 3. Isolated Context Initializer
+  document.addEventListener("DOMContentLoaded", function() {
+    try {
+      var initialCounters = [];
+      {% for c in counters %}
+        initialCounters.push({ count: "{{ c.count|escapejs }}", label: "{{ c.label|escapejs }}" });
+      {% endfor %}
+      
+      var initialServices = [];
+      {% for s in services %}
+        initialServices.push("{% if s.name %}{{ s.name|escapejs }}{% else %}{{ s|escapejs }}{% endif %}");
+      {% endfor %}
+      
+      var initialValues = [];
+      {% for v in value_items %}
+        initialValues.push({ icon: "{{ v.icon|escapejs }}", title: "{{ v.title|escapejs }}", description: "{{ v.description|escapejs }}" });
+      {% endfor %}
+
+      if (initialCounters.length) { initialCounters.forEach(addCounter); } else { addCounter(); }
+      if (initialServices.length) { initialServices.forEach(addService); } else { addService(); }
+      if (initialValues.length) { initialValues.forEach(addValueItem); } else { addValueItem(); }
+    } catch(err) {
+      console.warn("Context map bypassed, rendering fallbacks:", err);
+      if (ctrIdx === 0) addCounter();
+      if (svcIdx === 0) addService();
+      if (valIdx === 0) addValueItem();
+    }
+  });
+
+})();
+</script>
+{% endblock %}

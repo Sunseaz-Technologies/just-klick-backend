@@ -1,0 +1,111 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Lead Trash{% endblock %}
+{% block title_header %}Lead Trash{% endblock %}
+
+{% block content %}
+<div class="table-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="mb-0 fw-bold">Deleted Leads</h5>
+
+        <a href="{% url 'admin-leads' %}"
+           class="btn btn-primary btn-sm">
+            <i class="bi bi-arrow-left"></i>
+            Back to Leads
+        </a>
+    </div>
+
+    <table class="table table-hover align-middle">
+
+        <thead>
+            <tr>
+                <th>Sl.No</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Subject</th>
+                <th>Deleted At</th>
+                <th width="120">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for lead in leads %}
+            <tr>
+
+                <td>{{ forloop.counter }}</td>
+
+                <td>{{ lead.name }}</td>
+
+                <td>{{ lead.email }}</td>
+
+                <td>{{ lead.phone }}</td>
+
+                <td>{{ lead.subject }}</td>
+
+                <td>
+                    {{ lead.deleted_at|date:"d M Y H:i" }}
+                </td>
+
+                <!-- <td>
+
+                    <a href="{% url 'restore' lead.id %}"
+                       class="btn btn-sm btn-success">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Restore
+                    </a>
+
+                </td> -->
+                
+                <td>
+
+    <div class="d-flex gap-2">
+
+        <a href="{% url 'restore' lead.id %}"
+           class="btn btn-sm btn-success">
+
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Restore
+
+        </a>
+
+        <a href="{% url 'permanent-delete' lead.id %}"
+           class="btn btn-sm btn-danger"
+           onclick="return confirm('This lead will be permanently deleted and cannot be recovered. Continue?')">
+
+            <i class="bi bi-trash-fill"></i>
+            Delete
+
+        </a>
+
+    </div>
+
+</td>
+                
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="7" class="text-center py-5">
+
+                    <i class="bi bi-trash fs-1 text-muted"></i>
+
+                    <p class="mt-2 text-muted">
+                        Trash is empty.
+                    </p>
+
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+{% endblock %}

@@ -1,0 +1,388 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Reviews{% endblock %}
+{% block title_header %}Customer Reviews{% endblock %}
+
+{% block content %}
+<style>
+    .filter-card  { border: none; border-radius: 18px; margin-bottom: 20px; }
+    .search-box .input-group-text { background: #fff; border-right: none; height: 48px; }
+    .search-box .form-control     { border-left: none; height: 48px; box-shadow: none; }
+    .search-box .form-control:focus { box-shadow: none; }
+    .filter-btn, .search-btn      { height: 48px; border-radius: 12px; font-weight: 600; }
+    .filter-area  { background: #f8fafc; border-radius: 14px; padding: 20px; }
+    .filter-area label { font-size: 13px; font-weight: 600; color: #6c757d; margin-bottom: 6px; }
+    .filter-area .form-select,
+    .filter-area .form-control { height: 44px; border-radius: 10px; }
+    .table-card   { border: none; border-radius: 18px; }
+    .table thead th { font-size: 13px; font-weight: 700; color: #495057; text-transform: uppercase; }
+    .action-btn   { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .stat-card    { border-radius: 14px; padding: 16px 20px; background: #f8fafc; border: 1px solid #e9ecef; }
+    .stat-card .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #9aa0ac; margin-bottom: 4px; }
+    .stat-card .stat-value { font-size: 26px; font-weight: 800; margin: 0; }
+    .review-text-box { max-height: 72px; overflow-y: auto; font-style: italic; }
+    .extra-small  { font-size: 0.75rem; }
+    .business-link { color: #3369e7; text-decoration: none; font-weight: 600; }
+    .business-link:hover { color: #b01f2c; text-decoration: underline; }
+</style>
+
+<!-- ── Stat Cards ── -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-label">Total Reviews</div>
+            <p class="stat-value text-dark">{{ total_reviews }}</p>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card border-start border-warning border-3">
+            <div class="stat-label">Pending Approval</div>
+            <p class="stat-value text-warning">{{ pending_reviews }}</p>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card border-start border-success border-3">
+            <div class="stat-label">Approved</div>
+            <p class="stat-value text-success">{{ approved_reviews }}</p>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card border-start border-danger border-3">
+            <div class="stat-label">Rejected</div>
+            <p class="stat-value text-danger">{{ rejected_reviews }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── Filter Card ── -->
+<div class="card filter-card shadow-sm">
+    <div class="card-body p-4">
+        <form method="GET" id="filterForm">
+            <div class="row g-3 align-items-center">
+
+                <div class="col-lg-5">
+                    <div class="input-group search-box">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control"
+                               placeholder="Search by username or comment…"
+                               value="{{ search_query }}">
+                    </div>
+                </div>
+
+                <div class="col-lg-2">
+                    <button class="btn btn-outline-primary w-100 filter-btn" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#reviewFilters">
+                        <i class="bi bi-funnel me-1"></i> Filters
+                    </button>
+                </div>
+
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-primary w-100 search-btn">Search</button>
+                </div>
+
+                <div class="col-lg-3 d-flex gap-2 justify-content-end">
+                    {% if search_query or selected_business or selected_status or selected_rating or from_date or to_date %}
+                    <a href="{% url 'admin-reviews' %}"
+                       class="btn btn-outline-secondary"
+                       style="height:48px; border-radius:12px; font-weight:600; padding:0 16px; display:flex; align-items:center;">
+                        <i class="bi bi-x-circle me-1"></i> Clear
+                    </a>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- Collapsible Filters -->
+            <div class="collapse mt-4 {% if selected_business or selected_status or selected_rating or selected_sort or from_date or to_date %}show{% endif %}"
+                 id="reviewFilters">
+                <div class="filter-area">
+                    <div class="row g-3">
+
+                        <div class="col-lg-4">
+                            <label>Business Branch</label>
+                            <select name="business" class="form-select">
+                                <option value="">All Branches</option>
+                                {% for biz in businesses %}
+                                <option value="{{ biz.id }}"
+                                    {% if selected_business == biz.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ biz.company_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label>Status</label>
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">All</option>
+                                <option value="pending"  {% if selected_status == "pending"  %}selected{% endif %}>Pending</option>
+                                <option value="approved" {% if selected_status == "approved" %}selected{% endif %}>Approved</option>
+                                <option value="rejected" {% if selected_status == "rejected" %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label>Rating</label>
+                            <select name="rating" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Stars</option>
+                                {% for r in "54321" %}
+                                <option value="{{ r }}" {% if selected_rating == r %}selected{% endif %}>
+                                    {{ r }} ★
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label>Sort By</label>
+                            <select name="sort" class="form-select" onchange="this.form.submit()">
+                                <option value="newest"         {% if selected_sort == "newest" or not selected_sort %}selected{% endif %}>Newest First</option>
+                                <option value="oldest"         {% if selected_sort == "oldest"         %}selected{% endif %}>Oldest First</option>
+                                <option value="highest_rating" {% if selected_sort == "highest_rating" %}selected{% endif %}>Highest Rated</option>
+                                <option value="lowest_rating"  {% if selected_sort == "lowest_rating"  %}selected{% endif %}>Lowest Rated</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label>From Date</label>
+                            <input type="date" name="from_date" class="form-control" value="{{ from_date }}">
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label>To Date</label>
+                            <input type="date" name="to_date" class="form-control" value="{{ to_date }}">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- ── Table Card ── -->
+<div class="card table-card shadow-sm">
+    <div class="card-header bg-white border-0 py-3 px-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="fw-bold mb-0" style="color:#b01f2c;">All Reviews</h5>
+                <p class="text-muted mb-0" style="font-size:13px;">Monitor and moderate customer feedback</p>
+            </div>
+            <span class="badge bg-primary px-3 py-2">{{ total_reviews }} total</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="color:#243d7f;">S.No</th>
+                    <th style="color:#243d7f;">Customer</th>
+                    <th style="color:#243d7f;">Business</th>
+                    <th style="color:#243d7f;">Rating</th>
+                    <th style="color:#243d7f;">Comment</th>
+                    <th style="color:#243d7f;">Date</th>
+                    <th style="color:#243d7f;">Status</th>
+                    <th style="color:#243d7f;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr>
+                    <td>{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
+
+                    <!-- Customer -->
+                    <td>
+                        <div class="fw-semibold">{{ review.user.username }}</div>
+                    </td>
+
+                    <!-- Business → clicks to detail page -->
+                    <td>
+                        <a href="{% url 'businesses:detail' review.business.pk %}"
+                           class="business-link"
+                           title="View Business Details">
+                            {{ review.business.company_name }}
+                            <i class="bi bi-box-arrow-up-right ms-1" style="font-size:10px; opacity:0.6;"></i>
+                        </a>
+                    </td>
+
+                    <!-- Rating -->
+                    <td>
+                        <div class="text-nowrap">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    <span class="text-warning">★</span>
+                                {% else %}
+                                    <span class="text-muted opacity-25">☆</span>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-1 fw-bold text-dark small">({{ review.rating }}.0)</span>
+                        </div>
+                    </td>
+
+                    <!-- Comment -->
+                    <td style="max-width:260px;">
+                        <div class="text-secondary p-2 bg-light border-start border-2 rounded-end review-text-box">
+                            "{{ review.review }}"
+                        </div>
+                    </td>
+
+                    <!-- Date -->
+                    <td class="text-muted" style="font-size:13px;">
+                        {{ review.created_at|date:"d M Y" }}<br>
+                        <span class="extra-small opacity-75">{{ review.created_at|date:"H:i" }}</span>
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                        {% if review.status == "approved" %}
+                            <span class="badge bg-success"
+                                  style="padding:8px 12px; border-radius:30px; font-size:12px; font-weight:600;">
+                                Approved
+                            </span>
+                        {% elif review.status == "rejected" %}
+                            <span class="badge bg-danger"
+                                  style="padding:8px 12px; border-radius:30px; font-size:12px; font-weight:600;">
+                                Rejected
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark"
+                                  style="padding:8px 12px; border-radius:30px; font-size:12px; font-weight:600;">
+                                Pending
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <div class="d-flex gap-2">
+                            {% if review.status == "pending" %}
+
+                            <!-- Approve Button -->
+                            <button type="button"
+                                    class="btn btn-outline-success btn-sm action-btn"
+                                    title="Approve"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#approveModal{{ review.id }}">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+
+                            <!-- Reject Button -->
+                            <button type="button"
+                                    class="btn btn-outline-warning btn-sm action-btn"
+                                    title="Reject"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectModal{{ review.id }}">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+
+                            {% else %}
+                            <span class="text-muted extra-small fw-medium px-2 py-1 bg-light border rounded">
+                                Moderated
+                            </span>
+                            {% endif %}
+
+                            <!-- Delete Button -->
+                            <button type="button"
+                                    class="btn btn-outline-danger btn-sm action-btn"
+                                    title="Delete"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal{{ review.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+
+                        <!-- ── Approve Modal ── -->
+                        <div class="modal fade" id="approveModal{{ review.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content text-center" style="border-radius:16px;">
+                                    <div class="modal-body p-4">
+                                        <i class="bi bi-check-circle-fill text-success fs-1 mb-3 d-block"></i>
+                                        <h6 class="fw-bold text-dark mb-1">Approve Review?</h6>
+                                        <p class="text-muted small mb-4">
+                                            From <strong>{{ review.user.username }}</strong> — this will make the review visible publicly.
+                                        </p>
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary px-4"
+                                                    style="border-radius:10px;"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                            <a href="{% url 'approve-review' review.id %}"
+                                               class="btn btn-success px-4"
+                                               style="border-radius:10px;">Approve</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Reject Modal ── -->
+                        <div class="modal fade" id="rejectModal{{ review.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content text-center" style="border-radius:16px;">
+                                    <div class="modal-body p-4">
+                                        <i class="bi bi-x-circle-fill text-warning fs-1 mb-3 d-block"></i>
+                                        <h6 class="fw-bold text-dark mb-1">Reject Review?</h6>
+                                        <p class="text-muted small mb-4">
+                                            From <strong>{{ review.user.username }}</strong> — this review will be hidden from public view.
+                                        </p>
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary px-4"
+                                                    style="border-radius:10px;"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                            <a href="{% url 'reject-review' review.id %}"
+                                               class="btn btn-warning px-4"
+                                               style="border-radius:10px;">Reject</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Delete Modal ── -->
+                        <div class="modal fade" id="deleteModal{{ review.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content text-center" style="border-radius:16px;">
+                                    <div class="modal-body p-4">
+                                        <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3 d-block"></i>
+                                        <h6 class="fw-bold text-dark mb-1">Delete Review?</h6>
+                                        <p class="text-muted small mb-4">
+                                            From <strong>{{ review.user.username }}</strong> — this cannot be undone.
+                                        </p>
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary px-4"
+                                                    style="border-radius:10px;"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                            <a href="{% url 'delete-review' review.id %}"
+                                               class="btn btn-danger px-4"
+                                               style="border-radius:10px;">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </td>
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <i class="bi bi-chat-square-dots fs-1 text-muted d-block mb-3"></i>
+                        <p class="text-muted mb-0">No reviews found based on your filters.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if reviews %}
+            {% include "includes/pagination.html" %}
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

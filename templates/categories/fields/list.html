@@ -1,0 +1,94 @@
+{% extends "dashboard.html" %}
+
+{% block title %}{{ category.name }} — Fields{% endblock %}
+{% block title_header %}Category Fields{% endblock %}
+
+{% block content %}
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="mb-0 fw-bold">Fields for: {{ category.name }}</h5>
+            <small class="text-muted">Define custom fields vendors fill when registering a business in this category</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'categories:list' %}" class="btn btn-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
+            <a href="{% url 'categories:field_create' category.slug %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Add Field
+            </a>
+        </div>
+    </div>
+
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Label</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Filter</th>
+                <th>Order</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for field in fields %}
+            <tr>
+                <td class="text-muted">{{ forloop.counter }}</td>
+                <td class="fw-medium">{{ field.label }}</td>
+                <td>
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">
+                        {{ field.get_field_type_display }}
+                    </span>
+                </td>
+                <td>
+                    {% if field.is_required %}
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10">Required</span>
+                    {% else %}
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-10">Optional</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if field.show_as_filter %}
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10">Yes</span>
+                    {% else %}
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-10">No</span>
+                    {% endif %}
+                </td>
+                <td class="text-muted">{{ field.order }}</td>
+                <td>
+                    {% if field.is_active %}
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10">Active</span>
+                    {% else %}
+                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-10">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'categories:field_edit' category.slug field.pk %}" class="btn btn-sm btn-light text-primary" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form method="post" action="{% url 'categories:field_delete' category.slug field.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-light text-danger" title="Delete"
+                                onclick="return confirm('Delete field {{ field.label }}?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center py-5 text-muted">
+                    <i class="bi bi-sliders fs-3 d-block mb-2"></i>
+                    No fields yet. <a href="{% url 'categories:field_create' category.slug %}">Add one</a>.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

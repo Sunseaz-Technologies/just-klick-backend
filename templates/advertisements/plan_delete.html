@@ -1,0 +1,79 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+Delete Plan
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-lg rounded-4">
+
+            <div class="card-body text-center p-5">
+
+                <div class="mb-4">
+
+                    <i class="bi bi-exclamation-triangle-fill text-danger"
+                       style="font-size:70px;">
+                    </i>
+
+                </div>
+
+                <h3 class="fw-bold mb-3">
+
+                    Delete Advertisement Plan?
+
+                </h3>
+
+                <p class="text-muted">
+
+                    Are you sure you want to delete
+
+                    <strong>
+                        {{ plan.name }}
+                    </strong>
+
+                    ?
+
+                </p>
+
+                <p class="text-danger">
+
+                    This action cannot be undone.
+
+                </p>
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger px-4">
+
+                        <i class="bi bi-trash"></i>
+                        Yes, Delete
+
+                    </button>
+
+                    <a href="{% url 'advertisements:admin_plan_list' %}"
+                       class="btn btn-secondary px-4">
+
+                        Cancel
+
+                    </a>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-sm border-0">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white py-3 border-bottom">
+            <h4 class="mb-0 text-primary">
+                <i class="bi bi-shield-check me-2"></i>
+                Verify Business Searches
+            </h4>
+        </div>
+
+        <div class="card-body">
+            <!-- Filter Bar -->
+            <form method="GET" class="row g-3 mb-4">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search by business name or category..." value="{{ search }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved (Real Search)</option>
+                        <option value="fake" {% if status_filter == 'fake' %}selected{% endif %}>Fake Search</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'dynamic:popular_business_searches_list' %}" class="btn btn-light w-100">Reset</a>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="80">S.No</th>
+                            <th>Business Listing</th>
+                            <th>Category</th>
+                            <th>Search Count</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
+                            <th width="200">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                            <td>
+                                <strong>{{ item.business.company_name }}</strong>
+                            </td>
+                            <td>
+                                {% if item.business.category %}
+                                <span class="badge bg-light text-dark border">{{ item.business.category.name }}</span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-primary rounded-pill">{{ item.search_count }}</span>
+                            </td>
+                            <td>
+                                {% if item.status == 'approved' %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i> Approved (Real)
+                                </span>
+                                {% elif item.status == 'fake' %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle me-1"></i> Fake Search
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-clock me-1"></i> Pending Verification
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.created_at|date:"d M Y, h:i A" }}</td>
+                            <td>{{ item.updated_at|date:"d M Y, h:i A" }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    {% if item.status != 'approved' %}
+                                    <form method="POST" action="{% url 'dynamic:approve_business_search' item.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm" title="Approve Search">
+                                            <i class="bi bi-check-lg me-1"></i> Approve
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    
+                                    {% if item.status != 'fake' %}
+                                    <form method="POST" action="{% url 'dynamic:reject_business_search' item.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to mark this search as fake?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Mark as Fake">
+                                            <i class="bi bi-exclamation-triangle me-1"></i> Fake
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+                                No business search records found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav class="d-flex justify-content-between align-items-center mt-4">
+                <div class="text-muted small">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} items
+                </div>
+                <ul class="pagination pagination-modern mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-warning">
+
+            <h4 class="mb-0" style="color: #b01f2c;">
+                <i class="bi bi-pencil-square me-2"></i>
+                Update Why Choose Us
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST" enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold" style="color: #243d7f;">
+                        Title
+                    </label>
+
+                    <input
+                        type="text"
+                        name="title"
+                        class="form-control"
+                        value="{{ item.title }}"
+                        
+                    >
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold" style="color: #243d7f;">
+                        Description
+                    </label>
+
+                    <textarea
+                        name="description"
+                        class="form-control"
+                        rows="5"
+                        
+                    >{{ item.description }}</textarea>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold" style="color: #243d7f;">
+                        Current Icon
+                    </label>
+
+                    <div>
+
+                        {% if item.icon %}
+                        <img
+                            src="{{ item.icon.url }}"
+                            class="img-thumbnail"
+                            style="width:120px;height:120px;object-fit:cover;"
+                        >
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold" style="color: #243d7f;">
+                        Change Icon
+                    </label>
+
+                    <input
+                        type="file"
+                        name="icon"
+                        class="form-control"
+                    >
+
+                </div>
+
+                <div class="form-check form-switch mb-4">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="is_active"
+                        {% if item.is_active %}checked{% endif %}
+                    >
+
+                    <label class="form-check-label">
+                        Active
+                    </label>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-warning"
+                >
+                    <i class="bi bi-check-circle me-1"></i>
+                    Update
+                </button>
+
+                <a
+                    href="{% url 'dynamic:why_list' %}"
+                    class="btn btn-secondary"
+                >
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

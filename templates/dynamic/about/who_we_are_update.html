@@ -1,0 +1,328 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Modify Section Workspace{% endblock %}
+{% block title_header %}Modify Section Workspace{% endblock %}
+
+{% block content %}
+<style>
+.about-card {
+    border: none;
+    border-radius: 18px;
+}
+
+.image-preview-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+}
+
+.section-divider {
+    border-top: 2px dashed #e2e8f0;
+    margin: 25px 0;
+}
+</style>
+
+<div class="container-fluid">
+    
+    <!-- Header Block -->
+    <div class="card about-card shadow-sm mb-4">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-1">Configuration Desk</h4>
+                <p class="text-muted mb-0">Managing: <strong class="text-primary">{{ section.section_name }}</strong> Workspace</p>
+            </div>
+
+            <a href="{% url 'dynamic:who_we_are_list' %}" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+
+            <a href="{% url 'dynamic:who_we_are_list' %}" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+
+            <a href="{% url 'dynamic:who_we_are_list' %}" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+
+                <i class="bi bi-arrow-left me-1"></i> Back to Grid
+            </a>
+        </div>
+    </div>
+
+    <!-- Update Form -->
+    <div class="card about-card shadow-sm border-0 border-start border-warning border-4 bg-white">
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="edit_id" value="{{ section.id }}">
+
+                <!-- SECTION 1: Core Header Settings -->
+                <h6 class="text-primary fw-bold mb-3"><i class="bi bi-gear me-2"></i>1. Core Header Settings</h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Section Tag (Uppercase identifier)</label>
+                        <input type="text" name="section_name" class="form-control" value="{{ section.section_name }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Section Title</label>
+                        <input type="text" name="title" class="form-control" value="{{ section.title }}" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold text-muted small">Description Text</label>
+                        <textarea name="description" class="form-control" rows="3" required>{{ section.description }}</textarea>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- SECTION 2: Mission & Counter Statistics -->
+                <h6 class="text-primary fw-bold mb-3"><i class="bi bi-flag me-2"></i>2. Mission & Count Widget</h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-muted small">Mission Icon Class</label>
+                        <input type="text" name="mission_icon" class="form-control" value="{{ section.mission_icon }}" required>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold text-muted small">Mission Title</label>
+                        <input type="text" name="mission_title" class="form-control" value="{{ section.mission_title }}" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold text-muted small">Mission Description</label>
+                        <textarea name="mission_description" class="form-control" rows="2" required>{{ section.why_mission_description }}</textarea>
+                    </div>
+                    <input type="hidden" name="students_count" value="0">
+                    <input type="hidden" name="students_text" value="Default">
+
+                    <div class="col-12 mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <label class="form-label fw-semibold text-muted small mb-0"><i class="bi bi-bar-chart-steps me-2"></i>Counter Widget Statistics (Multiple)</label>
+                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="add-counter-btn">
+                                <i class="bi bi-plus-lg me-1"></i> Add Counter Item
+                            </button>
+                        </div>
+                        <div id="counters-container" class="row g-2">
+                            {% for cnt in counters %}
+                            <div class="col-md-6 mb-2 counter-row-item">
+                                <input type="hidden" name="existing_counter_ids[]" value="{{ cnt.id }}">
+                                <div class="input-group">
+                                    <span class="input-group-text small fw-semibold text-muted">Count</span>
+                                    <input type="number" name="counter_value_{{ cnt.id }}" class="form-control" value="{{ cnt.count }}" required>
+                                    <span class="input-group-text small fw-semibold text-muted">Label</span>
+                                    <input type="text" name="counter_label_{{ cnt.id }}" class="form-control" value="{{ cnt.label }}" required>
+                                    <button type="button" class="btn btn-outline-danger remove-counter-item-btn"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- SECTION 3: Values Header Settings -->
+                <h6 class="text-primary fw-bold mb-3"><i class="bi bi-award me-2"></i>3. Values Header Settings</h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Values Section Tag</label>
+                        <input type="text" name="second_section_name" class="form-control" value="{{ section.second_section_name }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Values Section Title</label>
+                        <input type="text" name="second_title" class="form-control" value="{{ section.second_title }}" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold text-muted small">Values Description</label>
+                        <textarea name="second_description" class="form-control" rows="2" required>{{ section.second_description }}</textarea>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- SECTION 4: Popular Services (Multiple strings) -->
+             <!-- <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-primary fw-bold mb-0"><i class="bi bi-card-checklist me-2"></i>4. Popular Services</h6>
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="add-service-btn">
+                        <i class="bi bi-plus-lg me-1"></i> Add Service
+                    </button>
+                </div> 
+                
+                <div class="mb-3" id="services-container">
+                    {% if services %}
+                        {% for service in services %}
+                        <div class="input-group mb-2 service-row">
+                            <input type="text" name="service_names[]" class="form-control" value="{{ service.service_name }}" required>
+                            <button type="button" class="btn btn-outline-danger remove-row-btn"><i class="bi bi-trash"></i></button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="input-group mb-2 service-row">
+                            <input type="text" name="service_names[]" class="form-control" placeholder="Enter service name" required>
+                            <button type="button" class="btn btn-outline-danger remove-row-btn"><i class="bi bi-trash"></i></button>
+                        </div>
+                    {% endif %}
+                </div> -->
+
+              
+
+                <!-- SECTION 5: Value Items (Multiple: Image, Title, Description) -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-primary fw-bold mb-0"><i class="bi bi-tags me-2"></i>4. Value cards (Multiple)</h6>
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="add-value-btn">
+                        <i class="bi bi-plus-lg me-1"></i> Add Value card
+                    </button>
+                </div>
+
+                <div id="values-container">
+                    {% for val in values %}
+                    <div class="card border border-light bg-light p-3 mb-3 value-item-row" data-id="{{ val.id }}">
+                        <input type="hidden" name="existing_value_ids[]" value="{{ val.id }}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary">Existing Value card</span>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-value-item-btn"><i class="bi bi-trash"></i> Remove</button>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-sm-3 d-flex flex-column align-items-center justify-content-center border-end border-light pr-2">
+                                {% if val.image %}
+                                    <img src="{{ val.image.url }}" class="image-preview-thumbnail mb-2" id="preview_exist_{{ val.id }}">
+                                {% endif %}
+                                <input type="file" name="value_image_{{ val.id }}" class="form-control form-control-sm mt-1" onchange="previewImage(this, 'preview_exist_{{ val.id }}')">
+                            </div>
+                            <div class="col-sm-9">
+                                <div class="mb-2">
+                                    <input type="text" name="value_title_{{ val.id }}" class="form-control form-control-sm" value="{{ val.title }}" placeholder="Title" required>
+                                </div>
+                                <div>
+                                    <textarea name="value_description_{{ val.id }}" class="form-control form-control-sm" rows="2" placeholder="Description" required>{{ val.description }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-check form-switch mb-4 mt-3">
+                    <input class="form-check-input" type="checkbox" name="is_active" id="sectionStatus" {% if section.is_active %}checked{% endif %}>
+                    <label class="form-check-label fw-semibold text-muted small" for="sectionStatus">Section Active (Display state on website)</label>
+                </div>
+
+                <button type="submit" class="btn btn-warning text-dark w-100 py-3 fw-bold rounded-3 shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i> Update Complete Section Setup
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let newValueCounter = 1;
+
+document.addEventListener("DOMContentLoaded", function () {
+    const servicesContainer = document.getElementById("services-container");
+    const addServiceBtn = document.getElementById("add-service-btn");
+
+    // Service Add/Remove
+    addServiceBtn.addEventListener("click", function () {
+        const row = document.createElement("div");
+        row.className = "input-group mb-2 service-row";
+        row.innerHTML = `
+            <input type="text" name="service_names[]" class="form-control" placeholder="Enter service name" required>
+            <button type="button" class="btn btn-outline-danger remove-row-btn"><i class="bi bi-trash"></i></button>
+        `;
+        servicesContainer.appendChild(row);
+    });
+
+    servicesContainer.addEventListener("click", function (e) {
+        if (e.target.closest(".remove-row-btn")) {
+            const row = e.target.closest(".service-row");
+            if (servicesContainer.querySelectorAll(".service-row").length > 1) {
+                row.remove();
+            } else {
+                row.querySelector("input").value = "";
+            }
+        }
+    });
+
+    // Counter Item Add/Remove
+    const countersContainer = document.getElementById("counters-container");
+    const addCounterBtn = document.getElementById("add-counter-btn");
+    let newCounterCounter = 1;
+
+    addCounterBtn.addEventListener("click", function () {
+        const index = newCounterCounter++;
+        const col = document.createElement("div");
+        col.className = "col-md-6 mb-2 counter-row-item";
+        col.innerHTML = `
+            <input type="hidden" name="new_counter_indices[]" value="${index}">
+            <div class="input-group">
+                <span class="input-group-text small fw-semibold text-muted">Count</span>
+                <input type="number" name="new_counter_value_${index}" class="form-control" placeholder="e.g. 500" required>
+                <span class="input-group-text small fw-semibold text-muted">Label</span>
+                <input type="text" name="new_counter_label_${index}" class="form-control" placeholder="e.g. Students" required>
+                <button type="button" class="btn btn-outline-danger remove-counter-item-btn"><i class="bi bi-trash"></i></button>
+            </div>
+        `;
+        countersContainer.appendChild(col);
+    });
+
+    countersContainer.addEventListener("click", function (e) {
+        if (e.target.closest(".remove-counter-item-btn")) {
+            const item = e.target.closest(".counter-row-item");
+            item.remove();
+        }
+    });
+
+    // Value Item Add/Remove
+    const valuesContainer = document.getElementById("values-container");
+    const addValueBtn = document.getElementById("add-value-btn");
+
+    addValueBtn.addEventListener("click", function () {
+        const index = newValueCounter++;
+        const card = document.createElement("div");
+        card.className = "card border border-light bg-light p-3 mb-3 value-item-row";
+        card.innerHTML = `
+            <input type="hidden" name="new_value_indices[]" value="${index}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-primary">New Value card</span>
+                <button type="button" class="btn btn-sm btn-outline-danger remove-value-item-btn"><i class="bi bi-trash"></i> Remove</button>
+            </div>
+            <div class="row g-2">
+                <div class="col-sm-3 d-flex flex-column align-items-center justify-content-center border-end border-light pr-2">
+                    <div class="text-center py-2" id="preview_container_new_${index}">
+                        <i class="bi bi-image text-muted fs-3"></i>
+                    </div>
+                    <input type="file" name="new_value_image_${index}" class="form-control form-control-sm mt-1" onchange="previewImage(this, 'preview_container_new_${index}', true)" required>
+                </div>
+                <div class="col-sm-9">
+                    <div class="mb-2">
+                        <input type="text" name="new_value_title_${index}" class="form-control form-control-sm" placeholder="Title" required>
+                    </div>
+                    <div>
+                        <textarea name="new_value_description_${index}" class="form-control form-control-sm" rows="2" placeholder="Description" required></textarea>
+                    </div>
+                </div>
+            </div>
+        `;
+        valuesContainer.appendChild(card);
+    });
+
+    valuesContainer.addEventListener("click", function (e) {
+        if (e.target.closest(".remove-value-item-btn")) {
+            const card = e.target.closest(".value-item-row");
+            card.remove();
+        }
+    });
+});
+
+function previewImage(input, targetId, isNewContainer = false) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            if (isNewContainer) {
+                const container = document.getElementById(targetId);
+                container.innerHTML = `<img src="${e.target.result}" class="image-preview-thumbnail mb-2">`;
+            } else {
+                const img = document.getElementById(targetId);
+                img.src = e.target.result;
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}

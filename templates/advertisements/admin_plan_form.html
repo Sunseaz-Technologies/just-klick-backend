@@ -1,0 +1,305 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+
+<style>
+    .plan-form-wrapper {
+        max-width: 700px;
+        margin: auto;
+    }
+
+    .plan-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+
+    .plan-card-header {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: white;
+        padding: 25px;
+    }
+
+    .plan-card-header h3 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .plan-card-body {
+        padding: 35px;
+        background: white;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #334155;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        padding: 12px 15px;
+        border: 1px solid #dbe2ea;
+    }
+
+    .form-control:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 .2rem rgba(37,99,235,.15);
+    }
+
+    .save-btn {
+        background: #2563eb;
+        border: none;
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        transition: .3s;
+    }
+
+    .save-btn:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+    }
+
+    .back-btn {
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 600;
+    }
+
+    .input-group-text {
+        background: #f8fafc;
+        border-radius: 12px 0 0 12px;
+        border-right: none;
+    }
+
+    .input-group .form-control {
+        border-left: none;
+    }
+
+    @media(max-width:768px){
+        .plan-card-body{
+            padding:20px;
+        }
+    }
+</style>
+
+<div class="container py-4">
+
+    <div class="plan-form-wrapper">
+
+        <div class="plan-card">
+
+            <div class="plan-card-header">
+
+                <h3>
+                    <i class="bi bi-megaphone-fill me-2"></i>
+
+                    {% if plan %}
+                        Edit Advertisement Plan
+                    {% else %}
+                        Create Advertisement Plan
+                    {% endif %}
+                </h3>
+
+            </div>
+
+            <div class="plan-card-body">
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+
+                            Plan Name 
+
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+
+                                <i class="bi bi-card-text"></i>
+
+                            </span>
+
+                            <input
+                                type="text"
+                                name="name"
+                                class="form-control"
+                                placeholder="Monthly Plan"
+                                value="{{ plan.name|default:'' }}"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+
+                            Plan Price
+
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+
+                                ₹
+
+                            </span>
+
+                            <input
+                                type="number"
+                                step="0.01"
+                                name="price"
+                                class="form-control"
+                                placeholder="1000"
+                                value="{{ plan.price|default:'' }}"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+
+                            Validity (Days)
+
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+
+                                <i class="bi bi-calendar-event"></i>
+
+                            </span>
+
+                            <input
+                                type="number"
+                                name="validity_days"
+                                class="form-control"
+                                placeholder="30"
+                                value="{{ plan.validity_days|default:'' }}"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+                            Plan Features
+                        </label>
+
+                        <div id="feature-container">
+                            {% if plan and plan.features.all %}
+                                {% for f in plan.features.all %}
+                                <div class="input-group mb-2 feature-item">
+                                    <input type="text" name="features" class="form-control"
+                                           placeholder="Enter feature" value="{{ f.feature }}">
+                                    <button type="button" class="btn btn-outline-danger remove-feature">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="input-group mb-2 feature-item">
+                                    <input type="text" name="features" class="form-control" placeholder="Enter feature">
+                                    <button type="button" class="btn btn-outline-danger remove-feature" style="display:none;">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="button" id="add-feature" class="btn btn-outline-primary btn-sm mt-2">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            Add Feature
+                        </button>
+
+                        <div class="form-text">
+                            Example: Featured on Homepage, Priority Placement, Highlighted Banner
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex gap-3">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary save-btn flex-fill">
+
+                            <i class="bi bi-check-circle me-2"></i>
+
+                            Save Plan
+
+                        </button>
+
+                        <a href="{% url 'advertisements:admin_plan_list' %}"
+                           class="btn btn-light border back-btn">
+
+                            <i class="bi bi-arrow-left me-2"></i>
+
+                            Back
+
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("feature-container");
+    const addButton = document.getElementById("add-feature");
+
+    addButton.addEventListener("click", function () {
+        const div = document.createElement("div");
+        div.className = "input-group mb-2 feature-item";
+        div.innerHTML = `
+            <input type="text" name="features" class="form-control" placeholder="Enter feature">
+            <button type="button" class="btn btn-outline-danger remove-feature">
+                <i class="bi bi-trash"></i>
+            </button>
+        `;
+        container.appendChild(div);
+
+        const removeButtons = container.querySelectorAll(".remove-feature");
+        if (removeButtons.length > 1) {
+            removeButtons.forEach(btn => btn.style.display = "inline-block");
+        }
+    });
+
+    container.addEventListener("click", function (e) {
+        const btn = e.target.closest(".remove-feature");
+        if (btn) {
+            btn.closest(".feature-item").remove();
+        }
+    });
+});
+</script>
+
+{% endblock %}

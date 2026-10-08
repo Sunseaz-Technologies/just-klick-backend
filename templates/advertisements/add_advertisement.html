@@ -1,0 +1,66 @@
+{% extends 'vendors/vendor_dashboard.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-8">
+
+        <div class="card border-0 shadow-lg rounded-4">
+
+            <div class="card-body p-5">
+
+                <h2 class="mb-4">
+
+                    <i class="bi bi-image"></i>
+
+                    Add Advertisement
+
+                </h2>
+
+                <form method="POST" enctype="multipart/form-data">
+
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+
+                            Advertisement Image
+
+                        </label>
+
+                        <input type="file" name="image" class="form-control" required>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+
+                            Redirect URL
+
+                        </label>
+
+                        <input type="url" name="redirect_url" class="form-control" placeholder="https://example.com"
+                            required>
+
+                    </div>
+
+                    <button class="btn btn-primary">
+
+                        Save Advertisement
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

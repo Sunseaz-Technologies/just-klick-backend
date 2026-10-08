@@ -1,0 +1,164 @@
+{% extends 'dashboard.html' %}
+
+{% block title %}Roles & Permissions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+    }
+
+    .card-custom {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+    }
+
+    .role-badge {
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-size: 13px;
+    }
+
+    .table td,
+    .table th {
+        vertical-align: middle;
+    }
+    .fw-semibolds{
+        color: #243d7f;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+
+    <div>
+        <h3 class="mb-1" style="color: #b01f2c;">Roles & Permissions</h3>
+        <p class="text-muted mb-0">
+            Manage user roles and permissions
+        </p>
+    </div>
+
+    <a href="{% url 'newrole' %}" class="btn btn-primary">
+
+        <i class="bi bi-plus-circle"></i>
+        Add New Role
+
+    </a>
+
+</div>
+
+<div class="card-custom">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h5 class="mb-0 fw-semibolds" >
+                Available Roles
+            </h5>
+
+            <small class="text-muted">
+                Total Roles: {{ roles.count }}
+            </small>
+        </div>
+
+        <form method="GET" class="d-flex gap-2">
+
+            <input type="text" name="search" class="form-control" placeholder="Search Role..." value="{{ search }}"
+                style="width:300px;">
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i>
+            </button>
+
+            {% if search %}
+            <a href="{% url 'roles' %}" class="btn btn-outline-secondary">
+                Clear
+            </a>
+            {% endif %}
+
+        </form>
+
+    </div>
+    <table class="table table-hover">
+
+        <thead>
+            <tr>
+                <th style="color: #243d7f;">S.No</th>
+                <th style="color: #243d7f;">Role Name</th>
+                <th style="color: #243d7f;">Permissions</th>
+                <th style="color: #243d7f;">Users</th>
+                <th style="color: #243d7f;">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for role in roles %}
+
+            <tr>
+
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    <span class="badge bg-primary role-badge">
+                        {{ role.name }}
+                    </span>
+                </td>
+
+                <td>
+                    {{ role.permissions.count }}
+                </td>
+
+                <td>
+                    {{ role.users.count }}
+                </td>
+
+                <td>
+
+                    <a href="{% url 'permissions' role.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil-square"></i>
+                        Edit
+                    </a>
+
+                    <form method="POST" action="{% url 'delete_role' role.id %}" style="display:inline;">
+
+                        {% csrf_token %}
+
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Delete {{ role.name }} ?')">
+
+                            <i class="bi bi-trash"></i>
+                            Delete
+
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="5" class="text-center py-4 text-muted">
+                    No Roles Found
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+    </table>
+{% include "includes/pagination.html" %}
+</div>
+
+{% endblock %}

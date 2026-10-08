@@ -1,0 +1,119 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Promise Sections{% endblock %}
+{% block title_header %}Promise Sections{% endblock %}
+
+{% block content %}
+<style>
+.about-card {
+    border: none;
+    border-radius: 18px;
+}
+
+.custom-badge {
+    padding: 8px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
+<div class="container-fluid">
+
+    <div class="card about-card shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="fw-bold mb-1">Promise Sections</h4>
+                    <p class="text-muted mb-0">Manage website promise headings and informational value cards</p>
+                </div>
+                <a href="{% url 'dynamic:promise_section_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i> Create Section
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card about-card shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">All Promise Configurations</h5>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sl.No</th>
+                        <th>Section Name</th>
+                        <th>Title / Description</th>
+                        <th>Cards Count</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for section in sections %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <span class="fw-semibold text-primary">
+                                {{ section.section_name }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">{{ section.title }}</div>
+                            <small class="text-muted">
+                                {{ section.description|truncatechars:75 }}
+                            </small>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                                <i class="bi bi-card-list me-1"></i> {{ section.cards.count }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if section.is_active %}
+                            <span class="badge bg-success custom-badge">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger custom-badge">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'dynamic:promise_section_edit' section.id %}" 
+                                   class="btn btn-outline-success btn-sm action-btn" 
+                                   title="Edit Section & Cards">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="POST" action="{% url 'dynamic:promise_section_delete' section.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            onclick="return confirm('Delete this section? Doing this will clear all nested cards as well.')" 
+                                            class="btn btn-outline-danger btn-sm action-btn">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-info-circle fs-1 text-muted"></i>
+                            <p class="text-muted mt-3">No Promise Sections Configured Yet</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

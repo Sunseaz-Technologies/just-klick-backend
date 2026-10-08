@@ -1,0 +1,225 @@
+{% extends 'dashboard.html' %}
+
+{% block title %}Student Details{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <div>
+                <h4 class="mb-1 text-primary">
+                    Student Details
+                </h4>
+                <small class="text-muted">
+                    Complete Student Information
+                </small>
+            </div>
+
+            <a href="{% url 'student_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Back
+            </a>
+
+        </div>
+
+        <div class="card-body">
+
+            <!-- Basic Information -->
+
+            <h5 class="text-danger mb-3">
+                Basic Information
+            </h5>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Name</label>
+                    <p>{{ student.get_full_name|default:student.username }}</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Email</label>
+                    <p>{{ student.email }}</p>
+                </div>
+                 <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Phone</label>
+                    <p>{{ student.phone }}</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Father Name</label>
+                    <p>{{ student.student_onboarding.father_name }}</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">College Code</label>
+                    <p>{{ student.student_onboarding.college_code }}</p>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <!-- Academic Details -->
+
+            <h5 class="text-danger mb-3">
+                Academic Details
+            </h5>
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Department</label>
+                    <p>{{ student.student_onboarding.dept_course }}</p>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Academic Year</label>
+                    <p>{{ student.student_onboarding.academic_year }}</p>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Year of Study</label>
+                    <p>{{ student.student_onboarding.year_of_study }}</p>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">CGPA / Percentage</label>
+                    <p>{{ student.student_onboarding.cgpa_percentage }}</p>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <!-- Career Details -->
+
+            <h5 class="text-danger mb-3">
+                Career Information
+            </h5>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Career Goal</label>
+                    <p>{{ student.student_onboarding.career_goal }}</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Plan After Graduation</label>
+                    <p>{{ student.student_onboarding.plan_after_graduation }}</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Interested Abroad</label>
+                    <p>{{ student.student_onboarding.interested_abroad }}</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Preferred Country</label>
+                    <p>{{ student.student_onboarding.preferred_country|default:"-" }}</p>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <!-- Skills -->
+
+            <h5 class="text-danger mb-3">
+                Skills & Interests
+            </h5>
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Course Reason</label>
+                    <ul>
+                        {% for item in student.student_onboarding.course_reason %}
+                        <li>{{ item }}</li>
+                        {% empty %}
+                        <li>-</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Area of Interest</label>
+                    <ul>
+                        {% for item in student.student_onboarding.area_of_interest %}
+                        <li>{{ item }}</li>
+                        {% empty %}
+                        <li>-</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Skills to Develop</label>
+                    <ul>
+                        {% for item in student.student_onboarding.skills_to_develop %}
+                        <li>{{ item }}</li>
+                        {% empty %}
+                        <li>-</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <!-- Internship -->
+
+            <h5 class="text-danger mb-3">
+                Internship & Certification
+            </h5>
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Internship Completed</label>
+
+                    {% if student.student_onboarding.internship_completed %}
+                    <span class="badge bg-success">Yes</span>
+                    {% else %}
+                    <span class="badge bg-danger">No</span>
+                    {% endif %}
+
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Interested in Internship</label>
+
+                    {% if student.student_onboarding.interested_in_internship %}
+                    <span class="badge bg-success">Yes</span>
+                    {% else %}
+                    <span class="badge bg-danger">No</span>
+                    {% endif %}
+
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Certifications</label>
+
+                    {% if student.student_onboarding.certifications %}
+                    <span class="badge bg-success">Yes</span>
+                    {% else %}
+                    <span class="badge bg-danger">No</span>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

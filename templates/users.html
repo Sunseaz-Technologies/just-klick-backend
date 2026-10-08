@@ -1,0 +1,254 @@
+{% extends 'dashboard.html' %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+
+<div class="card-custom">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3 class="mb-1" style="color:#b01f2c;">Users Management</h3>
+            <p class="text-muted mb-0">
+                Manage users and assign roles
+            </p>
+        </div>
+
+        <a href="{% url 'create_user' %}" class="btn btn-primary">
+            <i class="bi bi-person-plus-fill me-2"></i>
+            Create User
+        </a>
+
+    </div>
+
+    <!-- Search -->
+    <div class="row mb-4">
+
+        <div class="col-lg-5 col-md-7">
+
+            <form method="GET">
+
+                <div class="input-group">
+
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="search"
+                        value="{{ search }}"
+                        placeholder="Search by Name, Phone or Email">
+
+                    <button class="btn btn-primary" type="submit">
+                        Search
+                    </button>
+
+                    {% if search %}
+                    <a href="{% url 'users' %}" class="btn btn-outline-secondary">
+                        Clear
+                    </a>
+                    {% endif %}
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- Users Table -->
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead class="table-light">
+
+                <tr>
+
+                    <th style="color:#243d7f;">S.No</th>
+                    <th style="color:#243d7f;">Name</th>
+                    <th style="color:#243d7f;">Phone</th>
+                    <th style="color:#243d7f;">Email</th>
+                    <th style="color:#243d7f;">Status</th>
+                    <th style="color:#243d7f;">Current Role</th>
+                    <th style="color:#243d7f;">Assign Role</th>
+                    <th style="color:#243d7f;">Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for user in users %}
+
+                <tr>
+
+                    <td>{{ forloop.counter }}</td>
+
+                    <td>
+                        {% if user.first_name %}
+                            {{ user.first_name }}
+                        {% else %}
+                            {{ user.username }}
+                        {% endif %}
+                    </td>
+
+                    <td>{{ user.phone }}</td>
+
+                    <td>{{ user.email }}</td>
+
+                    <td>
+
+                        {% if user.is_active %}
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                Blocked
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if user.role %}
+                            <span class="badge bg-primary">
+                                {{ user.role.name }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                No Role
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <form method="POST">
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="user_id"
+                                value="{{ user.id }}">
+
+                            <div class="d-flex gap-2">
+
+                                <select
+                                    name="role_id"
+                                    class="form-select form-select-sm">
+
+                                    <option value="">
+                                        Select Role
+                                    </option>
+
+                                    {% for role in roles %}
+
+                                    <option
+                                        value="{{ role.id }}"
+                                        {% if user.role == role %}selected{% endif %}>
+
+                                        {{ role.name }}
+
+                                    </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-sm">
+
+                                    Save
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </td>
+
+                    <td>
+
+                        <div class="d-flex gap-2">
+
+                            {% if user.is_active %}
+
+                            <a href="{% url 'block_user' user.id %}"
+                               class="btn btn-warning btn-sm"
+                               onclick="return confirm('Block this user?')">
+
+                                <i class="bi bi-lock-fill"></i>
+
+                            </a>
+
+                            {% else %}
+
+                            <a href="{% url 'unblock_user' user.id %}"
+                               class="btn btn-success btn-sm"
+                               onclick="return confirm('Unblock this user?')">
+
+                                <i class="bi bi-unlock-fill"></i>
+
+                            </a>
+
+                            {% endif %}
+
+                            <a href="{% url 'delete_user' user.id %}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this user permanently?')">
+
+                                <i class="bi bi-trash-fill"></i>
+
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="8" class="text-center py-5">
+
+                        <i class="bi bi-search fs-1 text-muted"></i>
+
+                        <h5 class="mt-3">
+
+                            No users found.
+
+                        </h5>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% include "includes/pagination.html" %}
+
+</div>
+
+{% endblock %}

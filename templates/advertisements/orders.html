@@ -1,0 +1,251 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Ad Orders & Payments - Admin{% endblock %}
+{% block title_header %}Ad Orders & Payments{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-premium {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    }
+    .table-modern th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        color: #475569;
+        background-color: #f8fafc;
+        border-bottom: 2px solid #edf2f7;
+    }
+    .table-modern td {
+        padding: 14px 16px;
+        vertical-align: middle;
+    }
+    .search-input-group {
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: border-color 0.15s ease;
+    }
+    .search-input-group:focus-within {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59,130,246,0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Search & Filters -->
+<div class="card card-premium mb-4 border-0">
+    <div class="card-body p-4">
+        <form method="GET" action="" class="row g-3 align-items-end">
+            <!-- Search field -->
+            <div class="col-md-5">
+                <label for="search" class="form-label text-muted small fw-semibold">Search Orders</label>
+                <div class="input-group search-input-group">
+                    <span class="input-group-text bg-white border-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" id="search" class="form-control border-0 shadow-none ps-0" placeholder="Search by email, username, plan, order/payment ID..." value="{{ search }}">
+                </div>
+            </div>
+            
+            <!-- Status Filter -->
+            <div class="col-md-3">
+                <label for="status" class="form-label text-muted small fw-semibold">Payment Status</label>
+                <select name="status" id="status" class="form-select border shadow-none" style="border-radius: 10px; height: 46px;">
+                    <option value="">All Payments</option>
+                    <option value="SUCCESS" {% if status_filter == "SUCCESS" %}selected{% endif %}>Success</option>
+                    <option value="PENDING" {% if status_filter == "PENDING" %}selected{% endif %}>Pending</option>
+                    <option value="FAILED" {% if status_filter == "FAILED" %}selected{% endif %}>Failed</option>
+                </select>
+            </div>
+
+            <!-- Subscription Filter -->
+            <div class="col-md-3">
+                <label for="subscription_status" class="form-label text-muted small fw-semibold">Subscription Status</label>
+                <select name="subscription_status" id="subscription_status" class="form-select border shadow-none" style="border-radius: 10px; height: 46px;">
+                    <option value="">All Subscriptions</option>
+                    <option value="ACTIVE" {% if sub_filter == "ACTIVE" %}selected{% endif %}>Active Only</option>
+                    <option value="EXPIRED" {% if sub_filter == "EXPIRED" %}selected{% endif %}>Expired Only</option>
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-1 d-flex gap-2">
+                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="border-radius: 10px; height: 46px; width: 46px;" title="Apply Filters">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <a href="?" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" style="border-radius: 10px; height: 46px; width: 46px;" title="Reset Filters">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Payments List Card -->
+<div class="card card-premium border-0">
+    <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-credit-card me-2 text-primary"></i>Orders History</h5>
+        <span class="badge bg-light text-primary border px-3 py-2 fw-semibold">Found {{ total_count }} records</span>
+    </div>
+    
+    <div class="card-body px-0 pb-0">
+        <div class="table-responsive">
+            <table class="table table-modern table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;" class="text-center">S.No</th>
+                        <th>Order ID</th>
+                        <th>Vendor Details</th>
+                        <th>Plan Name</th>
+                        <th>Amount</th>
+                        <th>Payment Status</th>
+                        <th>Subscription</th>
+                        <th>Days Left</th>
+                        <th>Created Date</th>
+                        <th style="width: 80px;" class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in payments_with_subs %}
+                    <tr>
+                        <td class="text-center text-muted small">
+                            {{ forloop.counter|add:page_obj.start_index|add:-1 }}
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark" style="font-size:0.9rem;">{{ item.payment.razorpay_order_id }}</div>
+                            {% if item.payment.razorpay_payment_id %}
+                            <small class="text-muted text-uppercase" style="font-size: 0.75rem;">Pay ID: {{ item.payment.razorpay_payment_id }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark">{{ item.payment.vendor.username }}</div>
+                            <small class="text-muted">{{ item.payment.vendor.email }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ item.payment.plan.name }}</span>
+                        </td>
+                        <td class="fw-bold text-dark">
+                            ₹{{ item.payment.amount }}
+                        </td>
+                        <td>
+                            {% if item.payment.status == "SUCCESS" %}
+                            <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1.5">Success</span>
+                            {% elif item.payment.status == "PENDING" %}
+                            <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-1.5">Pending</span>
+                            {% else %}
+                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1.5">Failed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.subscription_status == "Active" %}
+                            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5">Active</span>
+                            {% elif item.subscription_status == "Expired" %}
+                            <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-1.5">Expired</span>
+                            {% else %}
+                            <span class="badge bg-light text-muted rounded-pill px-3 py-1.5">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.days_remaining is not None %}
+                                {% if item.days_remaining > 5 %}
+                                <span class="text-success fw-semibold"><i class="bi bi-clock-history me-1"></i>{{ item.days_remaining }} days</span>
+                                {% elif item.days_remaining > 0 %}
+                                <span class="text-warning fw-semibold"><i class="bi bi-exclamation-triangle me-1"></i>{{ item.days_remaining }} days</span>
+                                {% else %}
+                                <span class="text-danger fw-semibold"><i class="bi bi-x-circle me-1"></i>Expired</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="text-muted small">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small class="text-muted fw-medium">{{ item.payment.created_at|date:"d M Y h:i A" }}</small>
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'advertisements:admin_order_detail' item.payment.id %}" class="btn btn-sm btn-outline-primary ">
+                                <i class="bi bi-eye "></i> 
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 mb-2 d-block text-secondary"></i>
+                            No matching payment or order records found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination Section -->
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-center p-4 border-top">
+            <nav>
+                <ul class="pagination pagination-modern mb-0">
+                    <!-- Previous Page -->
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sub_filter %}&subscription_status={{ sub_filter }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- First Page -->
+                    <li class="page-item {% if page_obj.number == 1 %}active{% endif %}">
+                        <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sub_filter %}&subscription_status={{ sub_filter }}{% endif %}">1</a>
+                    </li>
+
+                    <!-- Dots Left -->
+                    {% if page_obj.number > 4 %}
+                    <li class="page-item disabled">
+                        <span class="page-link border-0 bg-transparent">...</span>
+                    </li>
+                    {% endif %}
+
+                    <!-- Pages Range -->
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num > 1 and num < page_obj.paginator.num_pages %}
+                            {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
+                            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sub_filter %}&subscription_status={{ sub_filter }}{% endif %}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Dots Right -->
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                    <li class="page-item disabled">
+                        <span class="page-link border-0 bg-transparent">...</span>
+                    </li>
+                    {% endif %}
+
+                    <!-- Last Page -->
+                    {% if page_obj.paginator.num_pages > 1 %}
+                    <li class="page-item {% if page_obj.number == page_obj.paginator.num_pages %}active{% endif %}">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sub_filter %}&subscription_status={{ sub_filter }}{% endif %}">{{ page_obj.paginator.num_pages }}</a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Next Page -->
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sub_filter %}&subscription_status={{ sub_filter }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

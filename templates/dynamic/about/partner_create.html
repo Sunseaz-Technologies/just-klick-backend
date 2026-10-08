@@ -1,0 +1,70 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Create Partner Block{% endblock %}
+{% block title_header %}New Dynamic Partner Section{% endblock %}
+
+{% block content %}
+<style>
+.about-card {
+    border: none;
+    border-radius: 18px;
+}
+</style>
+
+<div class="container-fluid" style="max-width: 900px; margin: 0 auto;">
+
+    <div class="card about-card shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h4 class="fw-bold mb-1">Create Partner Block</h4>
+            <p class="text-muted mb-0">Instantly generate section contexts and save batch corporate logo sets simultaneously.</p>
+        </div>
+    </div>
+
+    <div class="card about-card shadow-sm">
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Section Tag Subheading</label>
+                    <input type="text" name="section_name" class="form-control" value="TRENDING PARTNERS" required>
+                    <div class="form-text">Small subtitle banner markup (e.g., TRENDING PARTNERS).</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Main Display Title Text</label>
+                    <input type="text" name="title" class="form-control" value="Our Partners" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Description Snippet Context</label>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Type summary brief matching background criteria..." required></textarea>
+                </div>
+
+                <div class="mb-4 p-3 border border-dashed rounded bg-light">
+                    <label class="form-label fw-semibold text-danger">Select Corporate Logo Asset Graphics (Bulk Action)</label>
+                    <input type="file" name="partner_images" class="form-control form-control-lg fs-6" multiple accept="image/*" required>
+                    <div class="form-text text-dark-50 mt-1">
+                        <i class="bi bi-info-circle-fill text-primary"></i> 
+                        Hold down <strong>Ctrl</strong> (Windows) or <strong>Command</strong> (Mac) inside your dialog window to select multiple images at once.
+                    </div>
+                </div>
+
+                <div class="form-check form-switch mb-4">
+                    <input class="form-check-input" type="checkbox" name="is_active" id="sectionActive" checked>
+                    <label class="form-check-label fw-semibold" for="sectionActive">Publish State Visibility</label>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'dynamic:partner_list' %}" class="btn btn-light px-4 py-2 border rounded-3">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4 py-2 rounded-3">
+                        <i class="bi bi-cloud-upload me-2"></i> Save Section Block
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

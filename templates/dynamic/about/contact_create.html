@@ -1,0 +1,360 @@
+
+{% extends 'dashboard.html' %}
+
+{% block title %}Create Contact Page{% endblock %}
+{% block title_header %}Create Contact Page{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <form method="POST"
+          enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        <!-- Contact Page Information -->
+
+        <div class="card shadow-sm border-0 mb-4">
+
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold" style="color: #b01f2c;">
+                    Contact Page Information
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+
+                    <label class="form-label" style="color: #243d7f;">
+                        Page Title
+                    </label>
+
+                    <input type="text"
+                           name="title"
+                           class="form-control"
+                           placeholder="Enter page title" required>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label" style="color: #243d7f;">
+                        Description
+                    </label>
+
+                    <textarea name="description"
+                              rows="4"
+                              class="form-control"
+                              placeholder="Enter description" required></textarea>
+
+                </div>
+
+
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label" style="color: #243d7f;">
+                            Form Title
+                        </label>
+
+                        <input type="text"
+                               name="form_title"
+                               class="form-control"
+                               placeholder="Send Us A Message">
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label" style="color: #243d7f;">
+                            Button Text
+                        </label>
+
+                        <input type="text"
+                               name="button_text"
+                               class="form-control"
+                               placeholder="Submit Message" >
+
+                    </div>
+
+                </div>
+
+                <div class="mt-3">
+
+                    <label class="form-label" style="color: #243d7f;">
+                        Google Map Iframe
+                    </label>
+
+                    <textarea name="map_iframe"
+                              rows="4"
+                              class="form-control"
+                              placeholder="Paste Google Map iframe" required></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Contact Features -->
+
+        <div class="card shadow-sm border-0 mb-4">
+
+            <div class="card-header d-flex justify-content-between align-items-center bg-white">
+
+                <h5 class="mb-0 fw-bold" style="color: #b01f2c;">
+                    Contact Features
+                </h5>
+
+                <button type="button"
+                        class="btn btn-primary btn-sm"
+                        onclick="addFeature()">
+
+                    Add Feature
+
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div id="features-wrapper">
+
+                    <div class="row g-3 feature-row mb-3">
+
+                        <div class="col-md-3">
+
+                            <label class="form-label" style="color: #243d7f;">
+                                Icon Class
+                            </label>
+
+                            <input type="text"
+                                   name="feature_icon[]"
+                                   class="form-control"
+                                   placeholder="bi bi-geo-alt">
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <label class="form-label" style="color: #243d7f;"> 
+                                Feature Title
+                            </label>
+
+                            <input type="text"
+                                   name="feature_title[]"
+                                   class="form-control"
+                                   placeholder="Office Location">
+
+                        </div>
+
+                        <div class="col-md-5">
+
+                            <label class="form-label" style="color: #243d7f;">
+                                Feature Value
+                            </label>
+
+                            <input type="text"
+                                   name="feature_value[]"
+                                   class="form-control"
+                                   placeholder="Hyderabad, India">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Form Fields -->
+
+        <div class="card shadow-sm border-0 mb-4">
+
+            <div class="card-header d-flex justify-content-between align-items-center bg-white">
+
+                <h5 class="mb-0 fw-bold" style="color: #b01f2c;">
+                    Contact Form Fields
+                </h5>
+
+                <button type="button"
+                        class="btn btn-success btn-sm"
+                        onclick="addField()">
+
+                    Add Field
+
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div id="fields-wrapper">
+
+                    <div class="row g-3 field-row mb-3">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label" style="color: #243d7f;">
+                                Field Label
+                            </label>
+
+                            <input type="text"
+                                   name="field_label[]"
+                                   class="form-control"
+                                   placeholder="Full Name">
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <label class="form-label" style="color: #243d7f;">
+                                Placeholder
+                            </label>
+
+                            <input type="text"
+                                   name="field_placeholder[]"
+                                   class="form-control"
+                                   placeholder="Enter Full Name">
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <label class="form-label" style="color: #243d7f;">
+                                Field Type
+                            </label>
+
+                            <select name="field_type[]"
+                                    class="form-select">
+
+                                <option value="text">
+                                    Text
+                                </option>
+
+                                <option value="email">
+                                    Email
+                                </option>
+
+                                <option value="number">
+                                    Number
+                                </option>
+
+                                <option value="textarea">
+                                    Textarea
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="text-end">
+
+            <button type="submit"
+                    class="btn btn-primary px-4">
+
+                Save Contact Page
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<script>
+
+function addFeature(){
+
+    let html = `
+    <div class="row g-3 feature-row mb-3">
+
+        <div class="col-md-3">
+            <input type="text"
+                   name="feature_icon[]"
+                   class="form-control"
+                   placeholder="Icon">
+        </div>
+
+        <div class="col-md-4">
+            <input type="text"
+                   name="feature_title[]"
+                   class="form-control"
+                   placeholder="Feature Title">
+        </div>
+
+        <div class="col-md-5">
+            <input type="text"
+                   name="feature_value[]"
+                   class="form-control"
+                   placeholder="Feature Value">
+        </div>
+
+    </div>
+    `;
+
+    document.getElementById("features-wrapper")
+    .insertAdjacentHTML("beforeend", html);
+}
+
+function addField(){
+
+    let html = `
+    <div class="row g-3 field-row mb-3">
+
+        <div class="col-md-4">
+            <input type="text"
+                   name="field_label[]"
+                   class="form-control"
+                   placeholder="Label">
+        </div>
+
+        <div class="col-md-4">
+            <input type="text"
+                   name="field_placeholder[]"
+                   class="form-control"
+                   placeholder="Placeholder">
+        </div>
+
+        <div class="col-md-4">
+            <select name="field_type[]"
+                    class="form-select">
+
+                <option value="text">Text</option>
+                <option value="email">Email</option>
+                <option value="number">Number</option>
+                <option value="textarea">Textarea</option>
+
+            </select>
+        </div>
+
+    </div>
+    `;
+
+    document.getElementById("fields-wrapper")
+    .insertAdjacentHTML("beforeend", html);
+}
+
+</script>
+
+{% endblock %}
+

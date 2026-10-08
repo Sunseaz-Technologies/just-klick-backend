@@ -1,0 +1,229 @@
+
+{% extends 'dashboard.html' %}
+
+{% block content %}
+
+<h2>Update Contact Page</h2>
+
+<form method="post" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <!-- Contact Details -->
+
+    <div class="card">
+
+        <h4>Contact Page</h4>
+
+        <input type="text"
+               name="title"
+               class="form-control"
+               value="{{ contact.title }}"
+               placeholder="Title">
+
+        <textarea name="description"
+                  class="form-control">{{ contact.description }}</textarea>
+
+        {% if contact.banner_image %}
+            <img src="{{ contact.banner_image.url }}"
+                 width="150">
+        {% endif %}
+
+        <input type="file"
+               name="banner_image"
+               class="form-control">
+
+        <input type="text"
+               name="form_title"
+               class="form-control"
+               value="{{ contact.form_title }}">
+
+        <input type="text"
+               name="button_text"
+               class="form-control"
+               value="{{ contact.button_text }}">
+
+        <textarea name="map_iframe"
+                  class="form-control">{{ contact.map_iframe }}</textarea>
+
+        <label>
+            <input type="checkbox"
+                   name="is_active"
+                   {% if contact.is_active %}checked{% endif %}>
+            Active
+        </label>
+
+    </div>
+
+    <hr>
+
+    <!-- Features -->
+
+    <h4>Features</h4>
+
+    <div id="features-wrapper">
+
+        {% for feature in features %}
+
+        <div class="feature-row">
+
+            <input type="text"
+                   name="feature_icon[]"
+                   value="{{ feature.icon }}"
+                   placeholder="Icon">
+
+            <input type="text"
+                   name="feature_title[]"
+                   value="{{ feature.title }}"
+                   placeholder="Title">
+
+            <input type="text"
+                   name="feature_value[]"
+                   value="{{ feature.value }}"
+                   placeholder="Value">
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <button type="button"
+            onclick="addFeature()">
+        + Add Feature
+    </button>
+
+    <hr>
+
+    <!-- Form Fields -->
+
+    <h4>Form Fields</h4>
+
+    <div id="fields-wrapper">
+
+        {% for field in fields %}
+
+        <div class="field-row">
+
+            <input type="text"
+                   name="field_label[]"
+                   value="{{ field.label }}"
+                   placeholder="Label">
+
+            <input type="text"
+                   name="field_placeholder[]"
+                   value="{{ field.placeholder }}"
+                   placeholder="Placeholder">
+
+            <select name="field_type[]">
+
+                <option value="text"
+                    {% if field.field_type == 'text' %}selected{% endif %}>
+                    Text
+                </option>
+
+                <option value="email"
+                    {% if field.field_type == 'email' %}selected{% endif %}>
+                    Email
+                </option>
+
+                <option value="number"
+                    {% if field.field_type == 'number' %}selected{% endif %}>
+                    Number
+                </option>
+
+                <option value="textarea"
+                    {% if field.field_type == 'textarea' %}selected{% endif %}>
+                    Textarea
+                </option>
+
+            </select>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <button type="button"
+            onclick="addField()">
+        + Add Field
+    </button>
+
+    <hr>
+
+    <button type="submit"
+            class="btn btn-success">
+        Update Contact Page
+    </button>
+
+</form>
+
+
+<script>
+
+function addFeature() {
+
+    let html = `
+        <div class="feature-row">
+
+            <input type="text"
+                   name="feature_icon[]"
+                   placeholder="Icon">
+
+            <input type="text"
+                   name="feature_title[]"
+                   placeholder="Title">
+
+            <input type="text"
+                   name="feature_value[]"
+                   placeholder="Value">
+
+        </div>
+    `;
+
+    document
+        .getElementById("features-wrapper")
+        .insertAdjacentHTML(
+            "beforeend",
+            html
+        );
+}
+
+function addField() {
+
+    let html = `
+        <div class="field-row">
+
+            <input type="text"
+                   name="field_label[]"
+                   placeholder="Label">
+
+            <input type="text"
+                   name="field_placeholder[]"
+                   placeholder="Placeholder">
+
+            <select name="field_type[]">
+
+                <option value="text">Text</option>
+                <option value="email">Email</option>
+                <option value="number">Number</option>
+                <option value="textarea">Textarea</option>
+
+            </select>
+
+        </div>
+    `;
+
+    document
+        .getElementById("fields-wrapper")
+        .insertAdjacentHTML(
+            "beforeend",
+            html
+        );
+}
+
+</script>
+
+{% endblock %}
+

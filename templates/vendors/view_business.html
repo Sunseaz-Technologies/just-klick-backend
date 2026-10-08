@@ -1,0 +1,183 @@
+{% extends "vendors/vendor_dashboard.html" %}
+
+{% block title %}{{ business.company_name }}{% endblock %}
+{% block title_header %}Business Detail{% endblock %}
+
+{% block content %}
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="mb-0 fw-bold" style="color: #b01f2c;">{{ business.company_name }}</h5>
+        <a href="{% url 'vendors:my_businesses' %}" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    {% with images=business.images.all %}
+    {% if images %}
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        {% for img in images %}
+        <img src="{{ img.image.url }}"
+            style="width:120px;height:120px;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0;">
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Common Fields -->
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1" >Company Name</div>
+            <div class="fw-medium">{{ business.company_name }}</div>
+        </div>
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">Category</div>
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">
+                {{ business.category.name|default:"—" }}
+            </span>
+        </div>
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">Location</div>
+            <div class="fw-medium">{{ business.location }}</div>
+        </div>
+        {% if business.address %}
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">Address</div>
+            <div class="fw-medium">{{ business.address }}</div>
+        </div>
+        {% endif %}
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">Email</div>
+            <div class="fw-medium">
+                <a href="mailto:{{ business.email }}" class="text-decoration-none">{{ business.email }}</a>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">Phone</div>
+            <div class="fw-medium">{{ business.phone }}</div>
+        </div>
+        {% if business.whatsapp %}
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">WhatsApp</div>
+            <div class="fw-medium">{{ business.whatsapp }}</div>
+        </div>
+        {% endif %}
+        {% if business.website %}
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">Website</div>
+            <div class="fw-medium">
+                <a href="{{ business.website }}" target="_blank" class="text-decoration-none">{{ business.website }}</a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if business.description %}
+        <div class="col-12">
+            <div class="small text-muted mb-1">Description</div>
+            <div class="fw-medium">{{ business.description }}</div>
+        </div>
+        {% endif %}
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">Status</div>
+            {% if business.status == 'verified' %}
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10">Verified</span>
+            {% elif business.status == 'rejected' %}
+            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10">Rejected</span>
+            {% else %}
+            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-10">Pending</span>
+            {% endif %}
+        </div>
+        {% if business.rejection_reason %}
+        <div class="col-12">
+            <div class="small text-muted mb-1">Rejection Reason</div>
+            <div class="text-danger small">{{ business.rejection_reason }}</div>
+        </div>
+        {% endif %}
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">Registered On</div>
+            <div class="fw-medium small">{{ business.created_at|date:"d M Y, H:i" }}</div>
+        </div>
+    </div>
+
+    <!-- Dynamic Category Fields -->
+    {% if field_values %}
+    <hr class="my-4">
+    <div class="row g-3">
+        {% for fv in field_values %}
+        <div class="col-sm-6">
+            <div class="small text-muted mb-1">{{ fv.label }}</div>
+            <div class="fw-medium">
+                {% if fv.field_type == 'checkbox' %}
+                    {% if fv.value %}
+                        {% for item in fv.value %}
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 me-1">{{ item }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                {% elif fv.field_type == 'boolean' %}
+                    {% if fv.value %}
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10">Yes</span>
+                    {% else %}
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10">No</span>
+                    {% endif %}
+                {% else %}
+                    {{ fv.value|default:"—" }}
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ── Contact Plan Status ── -->
+    <hr class="my-4">
+    <div class="mb-1 fw-semibold small text-muted text-uppercase" style="letter-spacing:.05em;">
+        <i class="bi bi-phone-fill me-1"></i> Contact Visibility Plan
+    </div>
+
+    {% if listing_subscription and listing_subscription.subscription_active %}
+    {# Active plan – green banner #}
+    <div style="background:linear-gradient(135deg,#065f46,#059669);border-radius:14px;padding:18px 22px;
+                color:#fff;display:flex;align-items:center;gap:16px;margin-top:12px;">
+        <div style="font-size:32px;">✅</div>
+        <div>
+            <div class="fw-bold" style="font-size:15px;">
+                {{ listing_subscription.plan.name }} – Active
+            </div>
+            <div style="font-size:13px;opacity:.9;margin-top:2px;">
+                Clients can see your <strong>phone</strong> &amp; <strong>WhatsApp</strong> contact buttons.<br>
+                Expires: <strong>{{ listing_subscription.end_date|date:"d M Y" }}</strong>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    {# No / expired plan – yellow prompt #}
+    <div style="background:#fef9c3;border:1.5px solid #fbbf24;border-radius:14px;padding:18px 22px;
+                display:flex;align-items:flex-start;gap:14px;margin-top:12px;">
+        <div style="font-size:28px;margin-top:2px;">⚠️</div>
+        <div style="flex:1;">
+            <div class="fw-bold text-warning-emphasis" style="font-size:14px;">No Active Contact Plan</div>
+            <div class="text-muted small mt-1">
+                Without a plan, clients <strong>cannot</strong> see your phone or WhatsApp buttons on your listing.
+                Purchase a plan to start receiving enquiries.
+            </div>
+            <a href="{% url 'vendors:listing_plans' business.pk %}"
+               style="display:inline-block;margin-top:12px;padding:8px 20px;border-radius:10px;
+                      background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:700;
+                      font-size:13px;text-decoration:none;">
+                <i class="bi bi-phone-fill me-1"></i>View Plans &amp; Purchase
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mt-4 d-flex gap-2">
+        <a href="{% url 'vendors:edit_business' business.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i> Edit Business
+        </a>
+        <a href="{% url 'vendors:listing_plans' business.pk %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-phone me-1"></i> Manage Contact Plan
+        </a>
+    </div>
+</div>
+{% endblock %}

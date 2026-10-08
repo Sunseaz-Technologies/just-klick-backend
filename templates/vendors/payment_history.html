@@ -1,0 +1,62 @@
+{% extends "vendors/vendor_dashboard.html" %}
+{% load static %}
+
+{% block title %}Payment History{% endblock %}
+{% block title_header %}Payment History{% endblock %}
+
+{% block content %}
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0" style="color: #b01f2c;">Listing Plan Transactions</h5>
+    </div>
+
+    {% if payments %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="color: #243d7f;">S.NO</th>
+                    <th style="color: #243d7f;">Business</th>
+                    <th style="color: #243d7f;">Plan</th>
+                    <th style="color: #243d7f;">Amount</th>
+                    <th style="color: #243d7f;">Status</th>
+                    <th style="color: #243d7f;">Razorpay Order ID</th>
+                    <th style="color: #243d7f;">Start Date</th>
+                    <th style="color: #243d7f;">End Date</th>
+                    <th style="color: #243d7f;">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ p.business.company_name }}</td>
+                    <td>{{ p.plan.name }}</td>
+                    <td>₹{{ p.amount }}</td>
+                    <td>
+                        {% if p.payment_status == 'SUCCESS' %}
+                            <span class="badge bg-success">Success</span>
+                        {% elif p.payment_status == 'PENDING' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% else %}
+                            <span class="badge bg-danger">Failed</span>
+                        {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ p.razorpay_order_id }}</small></td>
+                    <td>{% if p.start_date %}{{ p.start_date|date:"d M Y" }}{% else %}—{% endif %}</td>
+                    <td>{% if p.end_date %}{{ p.end_date|date:"d M Y" }}{% else %}—{% endif %}</td>
+                    <td>{{ p.created_at|date:"d M Y, h:i A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include "includes/pagination.html" %}
+    {% else %}
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-credit-card fs-1 mb-3 d-block"></i>
+        <p>No payment transactions found.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
